@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<bns:serviceError xmlns:bns="http://config.services.com/schemas/bol-messages-1.0.xsd"><bns:ErrorCode>41101</bns:ErrorCode><bns:ErrorMessage>BOL-ERROR [PAI-41101] = Access denied</bns:ErrorMessage><bns:TraceId>PAI_pro-eor-app-002.bolcom.net_20161203T13:48:52:793_Seller_null</bns:TraceId></bns:serviceError>
