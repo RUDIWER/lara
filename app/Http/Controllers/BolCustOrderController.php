@@ -311,7 +311,6 @@ class BolCustOrderController extends Controller
                         // Add new delivery <address>      
                         $address = new PsAddress;
                         $address->id_customer = $customer->id_customer;
-                        if($plazaOrder->ShippingAddress->SalutationCode)
                         if($plazaOrder->ShippingAddress->Surname)
                         {
                             $address->lastname =  $plazaOrder->ShippingAddress->Surname;
