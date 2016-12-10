@@ -11,7 +11,7 @@
         "laravelcollective/html": "^5.3.0",
         "php-console/php-console": "^3.1",
         "php-console/laravel-service-provider": "~5.0",
-        "mcs/bol-plaza-v2": "^0.1.4"
+        "mcs/bol-plaza-v2": "^0.2.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
