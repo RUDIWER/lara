@@ -142,15 +142,15 @@ var newBolBeOrderApp = new Vue({
 
             $.ajax({
                 type: "post",
-                url: "./nieuwe-orders/wijzig-status/" + id_bol_be_orders + "/" + newState,
+                url: "./nieuwe-orders/wijzig-status/" + id_order + "/" + newState,
                 data: formData,
                 cache: false,
                 error: function (xhr, ajaxOptions, thrownError, data) 
                 {
                     console.log('data : ' + data);
-              //      alert(ajaxOptions);
-             //       alert(xhr.status);
-            //        alert(thrownError);
+                // alert(ajaxOptions);
+                //  alert(xhr.status);
+                //    alert(thrownError);
                 }
             })
             .done(function(data){

@@ -59,6 +59,8 @@ Route::post('producten/save/{id_cz_product}','CzProductController@save');
 // BOL test route
 Route::get('bol-be/verkopen/nieuwe-orders', 'BolCustOrderController@getBolOrders');
 Route::get('bol/test', 'BolTestController@postBolShipment');
+Route::get('bol/test/get-offers', 'BolTestController@getOffers');
+Route::get('bol/test/del-offers', 'BolTestController@delOffers');
 
 Route::post('bol-be/verkopen/nieuwe-orders/wijzig-status/{id_order}/{newState}','BolCustOrderController@changeState');
 

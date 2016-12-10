@@ -17,6 +17,7 @@ use App\Models\PsImage;
 use App\Http\Controllers\Controller;
 use Dhtmlx\Connector\GridConnector;
 use Illuminate\Http\Request;
+use MCS\BolPlazaClient;
 use App\Lara_Classes\BolNlClass;
 //use Illuminate\Support\Facades\DB;
 
@@ -108,18 +109,41 @@ class CzProductController extends Controller
         $CzProduct = CzProduct::findornew($id_cz_product);
         $alReadyOnBolNl = $CzProduct->active_bol_nl;
         $CzProduct->fill($data);
-// Set product on BOL.NL (Check first if flag is set to on )
-        if($alReadyOnBolNl == 0 && $CzProduct->active_bol_nl == 1)
-        {
-            $bolNlClass = new BolnlClass();
-            $offer = $bolNlClass->createOffer();
-            dd($offer);
-        }
         $CzProduct->date_upd = date('Y-m-d H:i:s');
         if(!$id_cz_product){                            // NIEUW PRODUCT !!!!!
             $CzProduct->date_add = date('Y-m-d H:i:s');
         }
         $CzProduct->save();
+       
+// Set or delete product on BOL.NL (Check first if flag is set to on  or of !)
+
+        $publicKey = env('BOL_NL_PUBLIC_PROD_KEY');
+        $privateKey = env('BOL_NL_PRIVATE_PROD_KEY');
+        $client = new BolPlazaClient($publicKey, $privateKey, false);
+    
+        $bolNlClass = new BolnlClass($CzProduct);
+        if($alReadyOnBolNl == 0 && $CzProduct->active_bol_nl == 1)
+        {
+          //  $offer = $bolNlClass->createOffer($CzProduct);
+            $created = $client->createOffer($CzProduct->id_product, [              
+                'EAN' => $CzProduct->ean13,
+                'Condition' => 'NEW',
+                'Price' => $CzProduct->vkp_bol_nl_in_vat,
+                'DeliveryCode' => '3-5d',
+                'QuantityInStock' => $CzProduct->quantity_in_stock,
+                'Publish' => true,
+                'ReferenceCode' => $CzProduct->id_product,
+                'Description' => $CzProduct->name
+            ]);
+            if ($created) {
+                echo 'Offer created';    
+            }
+        }
+        elseif($alReadyOnBolNl == 1 && $CzProduct->active_bol_nl == 0)
+        {
+            $offer = $bolNlClass->deleteOffer($CzProduct);
+        }
+
 // PsProducts ophalen of creeren
         $PsProduct = PsProduct::findornew($CzProduct->id_product);
 // Alle waarden van CzProduct toekennen aan PsProduct !!!

@@ -54,12 +54,12 @@ class PsCustOrderController extends Controller
             //3) Hier komt stockaanpassing bij BOL.COM     TO DO !!!!!!!!!!!!!!!!!!!!!!!!!!
 
             // If stock is Nul or lower -> Deactivate in Shop AND in BOL BOL TO DO !!!!!!!!!!!!!!!!!!!!
+                $psProduct = PsProduct::where('id_product',$orderDetail->product_id)->first();
+                $psProductShop = PsProductShop::where('id_product',$orderDetail->product_id)->first();
                 if($czProduct->quantity_in_stock <= 0)
                 {
                     $czProduct->active = 0;
-                    $psProduct = PsProduct::where('id_product',$orderDetail->product_id)->first();
                     $psProduct->active = 0;
-                    $psProductShop = PsProductShop::where('id_product',$orderDetail->product_id)->first();
                     $psProductShop->active = 0;
                 }
                 DB::beginTransaction();

@@ -17,6 +17,34 @@ class BolTestController extends Controller
         $this->middleware('auth');
     }
 
+    public function delOffers()
+    {
+
+        $publicKey = env('BOL_NL_PUBLIC_PROD_KEY');
+        $privateKey = env('BOL_NL_PRIVATE_PROD_KEY');
+        $client = new BolPlazaClient($publicKey, $privateKey, false);
+
+        $delete = $client->deleteOffer('K529');
+        if ($delete) {
+            echo 'Offer deleted';    
+        }  
+    }
+
+     public function getOffers()
+    {
+
+        $publicKey = env('BOL_NL_PUBLIC_PROD_KEY');
+        $privateKey = env('BOL_NL_PRIVATE_PROD_KEY');
+        $client = new BolPlazaClient($publicKey, $privateKey, false);
+
+        $offerFile = $client->requestOfferFile();
+        sleep(900);
+        $offers = $client->getOffers($offerFile);
+        dd($offers);
+    }
+
+
+/*
 
     public function postBolShipment()
     {
@@ -53,5 +81,6 @@ class BolTestController extends Controller
                 dd($answer);
             print_r("GELUKT ????");
           }  
-    }
+
+        */  
 }

@@ -1,10 +1,19 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use Illuminate\Support\Facades\DB;
 use App\Models\BolBeOrders;
 use App\Models\BolBeOrderDetail;
 use App\Models\PsCustomer;
+use App\Models\CzParameter;
 use App\Models\PsAddress;
+use App\Models\CzProduct;
+use App\Models\PsProduct;
+use App\Models\PsProductShop;
+use App\Models\PsStockAvailable;
+use App\Models\CzCustInvoice;
+use App\Models\CzCustInvoiceDetail;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use MCS\BolPlazaClient;
@@ -16,6 +25,215 @@ class BolCustOrderController extends Controller
         $this->middleware('auth');
     }
 
+    public function changeState(Request $request,$id_order,$newState)
+    {
+        $notCommited = 0; // var used to check if transaction is commited or not !
+        $param = CzParameter::find(1);
+        $order = BolBeOrders::find($id_order);
+        $orderDetails = BolBeOrders::find($id_order)->bolBeOrderDetails;
+        if($newState == 3)  // Order wordt overgezet van ontvangen naar -> Wordt voorbereid (in verschillende stappen !)
+        {   
+            // 1) PAS VOORRAAD AAN ZOWEL CZ_PRODUT ALS PS_PRODUCT ....
+            foreach($orderDetails as $orderDetail) 
+            {
+            //1) CZ_product voorraad -x / Te factureren +x
+                $czProduct = CzProduct::where('id_product',$orderDetail->id_product)->first();
+                $czProduct->quantity_in_stock = $czProduct->quantity_in_stock - $orderDetail->quantity;
+                $czProduct->quantity_to_invoice = $czProduct->quantity_to_invoice + $orderDetail->quantity;
+            //2) Ps_product (Via Ps_stock_available)
+                $psStockAvailable = PsStockAvailable::where('id_product',$orderDetail->id_product)->first();
+                $psStockAvailable->quantity = $czProduct->quantity_in_stock;
+            //3) Hier komt stockaanpassing bij BOL.COM     TO DO !!!!!!!!!!!!!!!!!!!!!!!!!!
+            // Niet zeker of stock aanpassing nodig is bij BOL Order -> Afwachten antwoord bol
+            // If stock is Nul or lower -> Deactivate in Shop AND in BOL BOL TO DO !!!!!!!!!!!!!!!!!!!!
+                $psProduct = PsProduct::where('id_product',$orderDetail->id_product)->first();
+                $psProductShop = PsProductShop::where('id_product',$orderDetail->id_product)->first();
+                if($czProduct->quantity_in_stock <= 0)
+                {
+                    $czProduct->active = 0;
+                    $psProduct->active = 0;
+                    $psProductShop->active = 0;
+                }
+
+                DB::beginTransaction();
+                try 
+                {
+                    $czProduct->save();     
+                    $czProduct->save();     
+                    $psProduct->save();
+                    $psProductShop->save();
+                    $psStockAvailable->save();
+                    DB::commit();
+                } catch (\Exception $e) 
+                {      // something went wrong
+                    $notCommited = 1;
+                    DB::rollback();
+                    throw $e;
+                } 
+            } // end foreach $orderDetails  
+         // After all changes are done ->Change order_state
+            if($notCommited != 1)     // LET OP DEZE WAARDE MOET 1 ZIJN ALS TESTEN GEDAAN IS !!!!!!!!!!
+            {
+                $order->current_state = $newState;
+                $orderStateSaved = $order->save();   
+            } 
+         //indien gelukt -> mail naar klant !!!    
+         // LET OP gebruik Email uit BolBeOrders !!! Niet uit klantenbestand !!
+            if($orderStateSaved)
+            {
+             // Send mail to client to inform order state changeState
+            }
+ 
+        } // end if $newState=3
+    
+        elseif($newState == 4)
+        {
+            //Plaats status op verzonden
+            if($notCommited != 1)     // LET OP DEZE WAARDE MOET 1 ZIJN ALS TESTEN GEDAAN IS !!!!!!!!!!
+            {
+                $order->current_state = $newState;
+                $orderStateSaved = $order->save();   
+            }  
+        //indien gelukt -> mail naar klant !!!    
+            if($orderStateSaved)
+            {
+             // Send mail to client to inform order state changeState
+            }
+        } // end if $newState=4
+        elseif($newState == 5)
+        {
+           //Plaats status op Geleverd
+            if($notCommited != 1)     // LET OP DEZE WAARDE MOET 1 ZIJN ALS TESTEN GEDAAN IS !!!!!!!!!!
+            {
+                $order->current_state = $newState;
+                $orderStateSaved = $order->save();   
+            }  
+     //indien gelukt -> mail naar klant !!!    
+        // Send mail to client to inform order state changeState
+            if($orderStateSaved)
+            {
+                // Send EMail to client !!!
+
+            }
+        } // end if $newState=5
+        elseif($newState == 19)         // Order to invoice
+        {
+          // 1) Create invoice
+             $invoice = new CzCustInvoice;
+             $invoice->ordernr_bol = $order->bol_be_order_id;
+             $invoice->id_customer = $order->id_customer;
+             $invoice->customer_name = $order->customer->lastname;
+             $invoice->customer_first_name = $order->customer->firstname;
+             $invoice->customer_street_nr = $order->invoice_address_1;
+             $invoice->customer_city = $order->invoice_city;
+             $invoice->customer_postal_code = $order->invoice_postcode;
+             $invoice->customer_vat_number = $order->invoice_vat_number;
+
+             if($order->id_invoice_country == 3)
+             {
+                $invoice->customer_country = 'BE';
+             }
+             elseif($order->id_invoice_country == 13 )
+             {
+                $invoice->customer_country = 'NL';
+             }
+             elseif($order->id_invoice_country == 8 )
+             {
+                $invoice->customer_country = 'FR';  
+             }
+             $invoice->invoice_date = date("Y/m/d");
+             $invoice->order_date = $order->date_order;   
+             $invoice->order_reference = $order->id_bol_be_orders;
+             $invoice->payment_method = 'Via Bol.com';
+             $invoice->total_shipping_btw_procent = $param->stand_vat_procent;
+             $invoice->total_shipping_exl_btw = 0;
+             $invoice->total_shipping_incl_btw = 0;       
+             foreach ($orderDetails as $orderDetail) 
+             {
+             //  $czProduct = CzProduct::where('id_product',$orderDetail->id_product)->first();
+                // Calculate Rowtotals
+                $rowTotalVkpInclVat = $orderDetail->unit_price_incl_vat * $orderDetail->quantity;
+                $rowTotalVkpExVat = ($rowTotalVkpInclVat / ((($orderDetail->vat_procent)/100)+1));
+                $rowTotalIkpExVat = $orderDetail->unit_ikp_cz_ex_vat * $orderDetail->quantity;
+                // Calculate invoice Totals
+                $invoice->total_products_incl_btw = $invoice->total_products_incl_btw + $rowTotalVkpInclVat;
+                $invoice->total_products_exl_btw = $invoice->total_products_exl_btw + $rowTotalVkpExVat;
+                $invoice->total_paid =  $invoice->total_products_incl_btw;
+                $invoice->total_ikp_cz_exl_btw = $invoice->total_ikp_cz_exl_btw + $rowTotalIkpExVat;
+                $invoice->total_costs_bol_exl_btw = $invoice->total_costs_bol_exl_btw + $orderDetail->transaction_fee;
+             }
+
+             $invoice->customer_phone = $order->delivery_phone_number;
+             $invoice->customer_email = $order->customer->email_for_delivery;
+             // Shipping Cost berekenen LET OP !!! Indien er in Prestashop nieuwe vervoerders bijkomen dient hier de code aangepast te worden !!!!!!!
+             $invoice->total_shipping_cost_exl_btw = $param->shipping_cost_bol_be_ex_btw; 
+             $invoice->company_name = $order->invoice_company;
+             $invoice->total_invoice_exl_btw = $invoice->total_products_exl_btw; 
+             $invoice->total_invoice_incl_btw = $invoice->total_products_incl_btw;
+             $invoice->total_wrapping_exl_btw = 0;
+             $invoice->total_wrapping_incl_btw = 0;
+             $invoice->invoice_type = '3';
+             $invoice->total_wrapping_cost_ex_btw = 0;
+             $invoice->netto_margin_ex_btw = $invoice->total_invoice_exl_btw - $invoice->total_ikp_cz_exl_btw - $invoice->total_shipping_cost_exl_btw;
+             // Get new Invoice number 
+             $lastInvoiceNr = $invoice::orderBy('id_cust_invoice', 'desc')->first()->id_cust_invoice;
+             $invoice->id_cust_invoice = $lastInvoiceNr + 1;
+             DB::beginTransaction();
+             try 
+             {
+                $invoice->save();    // Save invoice (header)
+                $invoice=CzCustInvoice::find($lastInvoiceNr + 1);
+            // 2) Create invoice rows & change to invoice field in products
+                $invoiceRow = new CzCustInvoiceDetail;
+                foreach ($orderDetails as $orderDetail)     // Loop over order rows and make invoice rows
+                {
+                    $productInRow = CzProduct::where('id_product',$orderDetail->id_product)->first();
+                    $invoiceRow->id_cz_cust_invoice = $invoice->id_cz_cust_invoice;
+                    $invoiceRow->id_cust_invoice = $invoice->id_cust_invoice;
+                    $invoiceRow->id_product = $orderDetail->id_product;
+                    $invoiceRow->product_reference = $productInRow->reference;
+                    $invoiceRow->product_suppl_reference = $productInRow->product_supplier_reference;
+                    $invoiceRow->product_descr = $orderDetail->product_name;
+                    $invoiceRow->quantity = $orderDetail->quantity;
+                    $invoiceRow->product_unit_price_ex_vat = ($orderDetail->unit_price_incl_vat / ((($orderDetail->vat_procent)/100)+1));
+                    $invoiceRow->product_ikp_price_cz_ex_vat = $orderDetail->unit_ikp_cz_ex_vat;
+                    $invoiceRow->product_total_ikp_cz_ex_vat = ($orderDetail->unit_ikp_cz_ex_vat * $orderDetail->quantity);
+                    $invoiceRow->product_total_price_ex_vat = ( $invoiceRow->product_unit_price_ex_vat * $orderDetail->quantity);
+                    $invoiceRow->vat_procent = $orderDetail->vat_procent;
+                    $invoiceRow->product_total_price_incl_vat = ($orderDetail->unit_price_incl_vat * $orderDetail->quantity);
+                    $invoiceRow->ean_product = $orderDetail->ean_code;
+                    $invoiceRow->id_supplier = $productInRow->id_supplier;
+                    $invoiceRow->product_unit_price_incl_vat = $orderDetail->unit_price_incl_vat;
+                    $invoiceRow->save();
+            // Change to invoice field  in Products 
+                    $productInRow->quantity_to_invoice = $productInRow->quantity_to_invoice - $orderDetail->quantity;
+                    $productInRow->save();
+                    DB::commit();
+                    $notInvoiced = 0;
+                } //end foreach   
+             } catch (\Exception $e) 
+             {      // something went wrong
+                 $notInvoiced = 1;
+                 DB::rollback();
+                 throw $e;
+             } 
+             // If invoice is created ...
+             if(!$notInvoiced) 
+             {       
+                //3) Status order wijzigen !!!!!!!!
+                $order->current_state = $newState;
+                $orderStateSaved = $order->save();   
+                //4) Send Mail to customer  !!!!!
+            } // end invoiced 
+        } // end newState = 19
+    }  //end public function changeState
+
+//************************************************************************************
+//*****
+//*****                       GET BOL getBolOrders
+//************************************************************************************
+
+
     public function getBolOrders()
     {
         // or live API: https://plazaapi.bol.com
@@ -25,6 +243,8 @@ class BolCustOrderController extends Controller
         // Your BOL keys
         $publicKey = env('BOL_BE_PUBLIC_PROD_KEY');
         $privateKey = env('BOL_BE_PRIVATE_PROD_KEY');
+        $param = CzParameter::find(1);
+
 
         $client = new BolPlazaClient($publicKey, $privateKey, false);
         $newPlazaOrders = $client->getOrders();  
@@ -466,7 +686,15 @@ class BolCustOrderController extends Controller
                         if($plazaOrderItem->OfferReference)
                         {
                             $orderRow->id_product = $plazaOrderItem->OfferReference;
+                            // Get extra Product info 
+                            $czProduct = CzProduct::where('id_product',$orderRow->id_product)->first();
+
+                            $orderRow->vat_procent = $czProduct->vat_procent;
+                            $orderRow->shipping_cost_bol_be = $param->shipping_cost_bol_be_ex_btw;
+                            $orderRow->calc_bol_be_cost = $czProduct->bol_be_cost; 
+                            $orderRow->unit_ikp_cz_ex_vat = $czProduct->ikp_ex_cz;                                         
                         }
+                    
                         if($plazaOrderItem->Title)
                         {
                             $orderRow->product_name = $plazaOrderItem->Title;
@@ -502,11 +730,6 @@ class BolCustOrderController extends Controller
         $newBolBeOrders = BolBeOrders::all();
         return view('bol.be.newOrders', compact('newBolBeOrders'));
     } // En function GetBolOrders
-
-    public function postBolShipment()
-    {
- 
-    }
 
 } // End class
 

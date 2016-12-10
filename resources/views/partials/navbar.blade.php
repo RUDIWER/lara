@@ -32,6 +32,8 @@
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">In Behandeling<span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
                             <li><a class="dropdown-item" href="{{ url('/bol/test') }}">Bol Test</a></li>
+                            <li><a class="dropdown-item" href="{{ url('/bol/test/get-offers') }}">Bol Get Offers</a></li>
+                             <li><a class="dropdown-item" href="{{ url('/bol/test/del-offers') }}">Bol del Offers</a></li>
                             <li><a class="dropdown-item" href="{{ url('/cz/verkopen/nieuwe-orders') }}">Te verwerken orders CZ</a></li>
                             <li><a class="dropdown-item" href="{{ url('/bol-be/verkopen/nieuwe-orders') }}">Te verwerken orders BOL-BE</a></li>
                             <li><a class="dropdown-item" href="{{ url('#') }}">Te verwerken orders BOL-NL</a></li>
