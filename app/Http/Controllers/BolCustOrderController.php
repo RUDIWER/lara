@@ -250,7 +250,7 @@ class BolCustOrderController extends Controller
         $newPlazaOrders = $client->getOrders();  
         if ($newPlazaOrders) 
         { 
-        dd($newPlazaOrders);
+    //    dd($newPlazaOrders);
         // Create orders in Mysql from incoming JSONDataUpdate
             // Loop over each order
             foreach($newPlazaOrders as $plazaOrder)
