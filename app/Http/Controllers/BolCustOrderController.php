@@ -726,7 +726,14 @@ class BolCustOrderController extends Controller
             }  // End foreach orders
         } // En if orders
         // Return New BOL-BE orders to the view
-        $newBolBeOrders = BolBeOrders::all();
+      //  $newBolBeOrders = BolBeOrders::all();
+        $newBolBeOrders = BolBeOrders::where('current_state','<=',5)
+                            ->orwhere('current_state','=',11)
+                            ->orwhere('current_state','=',12)
+                            ->orwhere('current_state','=',14)
+                            ->orwhere('current_state','=',16)
+                            ->orderBy('id_bol_be_orders', 'desc')
+                            ->orwhere('current_state','=',17)->get();
         return view('bol.be.newOrders', compact('newBolBeOrders'));
     } // En function GetBolOrders
 

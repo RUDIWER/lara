@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CzCustInvoice;
+use App\Models\CzParameter;
 use App\Http\Controllers\Controller;
 use Dhtmlx\Connector\GridConnector;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ class CzCustInvoiceController extends Controller
 
     public function invoices()
     {
-        return view('verkopen.invoices');
+        return view('verkopen.facturen.invoices');
     }
 
      public function invoiceData() {
@@ -28,4 +29,16 @@ class CzCustInvoiceController extends Controller
         );
         $connector->render();
     }
+
+        public function edit($id_cust_invoice) {
+        $invoice = CzCustInvoice::where('id_cust_invoice', $id_cust_invoice)->first();
+        $param = CzParameter::find(1);
+        $invoiceDetails = $invoice->invoiceDetails;
+        $isNew = 0;
+        return view('verkopen.facturen.edit', compact('invoice','invoiceDetails','param', 'isNew'));
+    }
+
+
+
+
 }

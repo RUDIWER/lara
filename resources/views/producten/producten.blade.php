@@ -58,7 +58,7 @@
         window.location.href = path;
     });
 
-    var dp = new dataProcessor("./producten_data");
-    dp.init(mygrid);
+ //   var dp = new dataProcessor("./producten_data");
+ //   dp.init(mygrid);
 </script>
 @endsection

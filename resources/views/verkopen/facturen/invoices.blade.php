@@ -30,8 +30,9 @@
     mygrid.setHeader("Id,Klantnaam,Voornaam,Email,Bedrag");
     mygrid.attachHeader("#numeric_filter,#text_filter,#text_filter,#text_filter,#numeric_filter");
     mygrid.enableKeyboardSupport(true);
-    mygrid.setColTypes("ro,ro,ro,ro,ro");
+    mygrid.setColTypes("ron,ro,ro,ro,ron");
     mygrid.setInitWidths("45");
+    mygrid.setNumberFormat("0,000.00",4);
     mygrid.enableLightMouseNavigation(true);
     mygrid.enableStableSorting(true);
     mygrid.init();
@@ -39,23 +40,23 @@
     mygrid.enableAlterCss("even","uneven");
     mygrid.setColSorting("int,str,str,str,int");
     //                mygrid.sortRows(0, "str", "asc"); // sorts grid
-    mygrid.setSortImgState(true, 1, "asc"); // sets icon to sort arrow
+    mygrid.setSortImgState(true, 0, "asc"); // sets icon to sort arrow
     mygrid.load("./invoice_data",function(){
-        mygrid.sortRows(1,"str","asc"); //0 - index of column
+        mygrid.sortRows(0,"num","des"); //0 - index of column
     });
     mygrid.attachEvent("onRowDblClicked", function(row,col){
         var cellValue = mygrid.cells(row,0).getValue();
-        var path = "./klanten/edit/" + cellValue;
+        var path = "./facturen/edit/" + cellValue;
         window.location.href = path;
     });
     mygrid.attachEvent("onEnter", function(row,col){
         var cellValue = mygrid.cells(row,0).getValue();
-        var path = "./klanten/edit/" + cellValue;
+        var path = "./facturen/edit/" + cellValue;
         window.location.href = path;
     });
 
-    var dp = new dataProcessor("./customer_data");
-    dp.init(mygrid);
+//    var dp = new dataProcessor("./invoice_data");
+//    dp.init(mygrid);
 
 // Customer Form
 

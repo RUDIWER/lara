@@ -54,8 +54,8 @@
         window.location.href = path;
     });
 
-    var dp = new dataProcessor("./customer_data");
-    dp.init(mygrid);
+ //   var dp = new dataProcessor("./customer_data");
+ //   dp.init(mygrid);
 
 // Customer Form
 

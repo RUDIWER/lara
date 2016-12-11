@@ -458,9 +458,7 @@
 
 <script src="/js/vue.min.js" type="text/javascript"></script>
 <script type="text/javascript" charset="utf-8">
-
 var isNew = $('#isNew').data("field-id");
-
 // Fire change event when opening form to trigger vue.js computed properties
 $(document).ready(function() {
     var element = document.getElementById('ikp_supplier');
@@ -479,7 +477,6 @@ $(document).ready(function() {
         $('#toggle_bol_nl').bootstrapToggle('off')
     }
 });
-
 // Init TInymce on textarea fields
 tinymce.init({
     selector:'textarea',
@@ -491,7 +488,6 @@ tinymce.init({
         'cut copy paste bullist numlist outdent indent blockquote undo redo removeformat subscript superscript',
         'styleselect formatselect fontselect fontsizeselect',
     ],
-
  });
 // Switch prestashop
 $(function() {
@@ -503,7 +499,6 @@ $(function() {
         }
     })
  })
-
 // Switch Bol_NL
 $(function() {
     $('#toggle_bol_nl').change(function() {
@@ -517,10 +512,6 @@ $(function() {
         }
     })
  })
-
-
-
-
  // link rewrite
 $(function(){
  $('#name').focusout(function() {
@@ -533,14 +524,8 @@ $(function(){
     }
 })
 })
-
-
-
-
-
 var productApp = new Vue({
   el: '#productApp',
-
   data: {
       vat_procent: $('#vat_procent').data("field-id"),
       ikp_supplier: $('#ikp_supplier').data("field-id"),
@@ -613,7 +598,6 @@ var productApp = new Vue({
             $('#margin_factor_be_cz').css("background-color","#90EE90");
         }else{
             $('#margin_factor_be_cz').css("background-color","#FFB6C1");
-
         }
         return newValue
     },
@@ -670,7 +654,6 @@ var productApp = new Vue({
         return (Math.round((this.vkp_bol_be_in_vat / ((this.vat_procent/100)+1))*100)/100)
     },
     bol_be_cost: function(){
-
         fix_cost_ex_btw = (this.bol_group_cost_fix / ((this.vat_procent/100)+1))
         newValue = (Math.round(((this.bol_group_cost_procent / 100 * this.vkp_bol_be_ex_vat)+ fix_cost_ex_btw)*100)/100)
         if((!this.bol_group_cost_fix ||  !this.bol_group_cost_procent) && (this.vkp_bol_be_in_vat > 0)){
@@ -678,9 +661,7 @@ var productApp = new Vue({
             $('#bol_be_cost').css("background-color","#FFB6C1");
         }else{
             $('#bol_be_cost').css("background-color","#90EE90");
-
         }
-
         return newValue
     },
     netto_profit_amount_bol_be: function(){
@@ -729,7 +710,5 @@ var productApp = new Vue({
     }
   }
 })
-
-
 </script>
 @endsection
