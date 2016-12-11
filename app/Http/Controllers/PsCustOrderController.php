@@ -156,7 +156,7 @@ class PsCustOrderController extends Controller
                 $invoice->customer_country = 'FR';  
              }
              $invoice->invoice_date = date("Y/m/d");
-             $invoice->order_date = date('Y-m-d', strtotime($order->date_add));   
+             $invoice->order_date = date('Y/m/d', strtotime($order->date_add));  
              $invoice->order_reference = $order->reference;
              $invoice->payment_method = $order->payment;
              $invoice->total_shipping_btw_procent = $order->carrier_tax_rate;
