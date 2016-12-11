@@ -222,9 +222,9 @@ class PsCustOrderController extends Controller
                 $invoice->save();    // Save invoice (header)
                 $invoice=CzCustInvoice::find($lastInvoiceNr + 1);
             // 2) Create invoice rows & change to invoice field in products
-                $invoiceRow = new CzCustInvoiceDetail;
                 foreach ($orderDetails as $orderDetail)     // Loop over order rows and make invoice rows
                 {
+                    $invoiceRow = new CzCustInvoiceDetail;
                     $invoiceRow->id_cz_cust_invoice = $invoice->id_cz_cust_invoice;
                     $invoiceRow->id_cust_invoice = $invoice->id_cust_invoice;
                     $invoiceRow->id_product = $orderDetail->product_id;
@@ -277,6 +277,7 @@ class PsCustOrderController extends Controller
                 $order->current_state = $newState;
                 $orderStateSaved = $order->save();   
                 //4) Send Mail to customer  !!!!!
+    /* 
                 $customer = CzCustInvoice::find($invoice->id_cust_invoice)->customer;
                 $invoiceRows = CzCustInvoiceDetail::where('id_cust_invoice',$invoice->id_cust_invoice)->get();
                 Mail::send('emails.orderInvoiced', ['customer' => $customer, 'invoice'=> $invoice, 'invoiceRows' => $invoiceRows], function ($m) use ($customer, $invoiceRows, $invoice) 
@@ -284,6 +285,7 @@ class PsCustOrderController extends Controller
                     $m->from('info@cool-zawadi.com', 'Dienst Facuratie cool-zawadi');
                     $m->to($customer->email, $customer->firstname)->subject('Factuur van uw order Bij Cool-Zawadi !');
                 });
+    */            
             } // end invoiced 
         } // end newState = 19
     }  //end public function changeState
