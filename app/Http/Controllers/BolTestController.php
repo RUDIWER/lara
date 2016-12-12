@@ -24,7 +24,7 @@ class BolTestController extends Controller
         $privateKey = env('BOL_NL_PRIVATE_PROD_KEY');
         $client = new BolPlazaClient($publicKey, $privateKey, false);
 
-        $delete = $client->deleteOffer('K529');
+        $delete = $client->deleteOffer('487');
         if ($delete) {
             echo 'Offer deleted';    
         }  
@@ -38,7 +38,7 @@ class BolTestController extends Controller
         $client = new BolPlazaClient($publicKey, $privateKey, false);
 
         $offerFile = $client->requestOfferFile();
-        sleep(900);
+        sleep(500);
         $offers = $client->getOffers($offerFile);
         dd($offers);
     }

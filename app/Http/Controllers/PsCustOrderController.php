@@ -93,7 +93,7 @@ class PsCustOrderController extends Controller
                 });
             }
         } // end if $newState=3
-        elseif($newState == 4)
+        elseif($newState == 4)   // UW order is verzonden
         {
             //Plaats status op verzonden
             if($notCommited != 1)     // LET OP DEZE WAARDE MOET 1 ZIJN ALS TESTEN GEDAAN IS !!!!!!!!!!
@@ -108,11 +108,11 @@ class PsCustOrderController extends Controller
                 $customer = PsOrders::find($id_order)->customer;
                 Mail::send('emails.orderSend', ['customer' => $customer, 'order' => $order], function ($m) use ($customer,$order) {
                     $m->from('info@cool-zawadi.com', 'Dienst Dispatching cool-zawadi');
-                    $m->to($customer->email, $customer->firstname)->subject('Uw order bij cool-zawadi.com zou geleverd moeten zijn !');
+                    $m->to($customer->email, $customer->firstname)->subject('Uw order bij cool-zawadi.com is verzonden !');
                 });
             }
         } // end if $newState=4
-        elseif($newState == 5)
+        elseif($newState == 5)  
         {
            //Plaats status op Geleverd
             if($notCommited != 1)     // LET OP DEZE WAARDE MOET 1 ZIJN ALS TESTEN GEDAAN IS !!!!!!!!!!
@@ -127,7 +127,7 @@ class PsCustOrderController extends Controller
                 $customer = PsOrders::find($id_order)->customer;
                 Mail::send('emails.orderDelivered', ['customer' => $customer, 'order' => $order], function ($m) use ($customer,$order) {
                     $m->from('info@cool-zawadi.com', 'Dienst Dispatching cool-zawadi');
-                    $m->to($customer->email, $customer->firstname)->subject('Uw order bij cool-zawadi.com is verzonden !');
+                    $m->to($customer->email, $customer->firstname)->subject('Uw order bij cool-zawadi.com zou geleverd moeten zijn !');
                 });
             }
         } // end if $newState=5
@@ -277,15 +277,15 @@ class PsCustOrderController extends Controller
                 $order->current_state = $newState;
                 $orderStateSaved = $order->save();   
                 //4) Send Mail to customer  !!!!!
-    /* 
+     
                 $customer = CzCustInvoice::find($invoice->id_cust_invoice)->customer;
                 $invoiceRows = CzCustInvoiceDetail::where('id_cust_invoice',$invoice->id_cust_invoice)->get();
                 Mail::send('emails.orderInvoiced', ['customer' => $customer, 'invoice'=> $invoice, 'invoiceRows' => $invoiceRows], function ($m) use ($customer, $invoiceRows, $invoice) 
                 {
                     $m->from('info@cool-zawadi.com', 'Dienst Facuratie cool-zawadi');
-                    $m->to($customer->email, $customer->firstname)->subject('Factuur van uw order Bij Cool-Zawadi !');
+                    $m->to($customer->email, $customer->firstname)->subject('Factuur van uw order Bij Cool-Zawadi en alvast bedankt voor het vertrouwen !');
                 });
-    */            
+                
             } // end invoiced 
         } // end newState = 19
     }  //end public function changeState
