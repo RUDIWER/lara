@@ -1,7 +1,6 @@
 @extends('layouts.app')
-
-<div id="custInvoiceApp">
 @section('content')
+<div id="custInvoiceApp">
 <div id="isNew" data-field-id="{{$isNew}}" ></div>
 
 @if ($isNew == 0)
@@ -24,6 +23,7 @@
                     <h4 class="panel-heading">Factuur Toevoegen {{ $isNew }}
                 @endif
                     <div class="btn-group btn-titlebar pull-right">
+                       <a href="{{ URL::to('/verkopen/facturen/print/'.$invoice->id_cust_invoice)}}" type="button" class='btn btn-default btn-sm'>Print</a>
                        <a href="{{ URL::to('/verkopen/facturen') }}" type="button" class='btn btn-default btn-sm'>Annuleer</a>
             <!--           <input type="submit" class='btn btn-default btn-sm' value="Opslaan"> -->
                     </div>
@@ -222,3 +222,4 @@
     </div> <!-- row -->
 </div> <!-- container-fluid -->
 @include('partials.footer')
+@endsection

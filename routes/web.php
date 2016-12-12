@@ -73,6 +73,8 @@ Route::post('cz/verkopen/nieuwe-orders/wijzig-status/{id_order}/{newState}','PsC
 Route::get('/verkopen/facturen','CzCustInvoiceController@invoices');
 Route::get('/verkopen/facturen/edit/{id_cust_invoice}','CzCustInvoiceController@edit');
 Route::match(['get', 'post'], '/verkopen/invoice_data', 'CzCustInvoiceController@invoiceData');
+Route::get('/verkopen/facturen/print/{id_cust_invoice}','printCzCustInvoiceController@getInvoicePdf');
+
 
 
 
