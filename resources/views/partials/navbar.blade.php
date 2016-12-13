@@ -33,7 +33,7 @@
                         <ul class="dropdown-menu" role="menu">
                             <li><a class="dropdown-item" href="{{ url('/cz/verkopen/nieuwe-orders') }}">Te verwerken orders CZ</a></li>
                             <li><a class="dropdown-item" href="{{ url('/bol-be/verkopen/nieuwe-orders') }}">Te verwerken orders BOL-BE</a></li>
-                            <li><a class="dropdown-item" href="{{ url('#') }}">Te verwerken orders BOL-NL</a></li>
+                            <li><a class="dropdown-item" href="{{ url('/bol-nl/verkopen/nieuwe-orders') }}">Te verwerken orders BOL-NL</a></li>
                         </ul>
                     </li>
                     <li class="dropdown">

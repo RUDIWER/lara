@@ -56,8 +56,15 @@ Route::get('producten/create','CzProductController@create');
 Route::get('producten/edit/{id_cz_product}','CzProductController@edit');
 Route::post('producten/save/{id_cz_product}','CzProductController@save');
 
-// BOL test route
+// BOL-BE routes
 Route::get('bol-be/verkopen/nieuwe-orders', 'BolCustOrderController@getBolOrders');
+
+// BOL-NL routes
+Route::get('bol-nl/verkopen/nieuwe-orders', 'BolNlCustOrderController@getBolOrders');
+
+
+
+// Bol-TEST routes
 Route::get('bol/test', 'BolTestController@postBolShipment');
 Route::get('bol/test/get-offers', 'BolTestController@getOffers');
 Route::get('bol/test/del-offers', 'BolTestController@delOffers');
@@ -68,6 +75,7 @@ Route::post('bol-be/verkopen/nieuwe-orders/wijzig-status/{id_order}/{newState}',
 // CZ VERKOPEN routes
 Route::get('cz/verkopen/nieuwe-orders','PsCustOrderController@newOrders');
 Route::post('cz/verkopen/nieuwe-orders/wijzig-status/{id_order}/{newState}','PsCustOrderController@changeState');
+Route::get('cz/verkopen/nieuwe-orders/image/{id_product}');
 
 // CZ invoices routes
 Route::get('/verkopen/facturen','CzCustInvoiceController@invoices');

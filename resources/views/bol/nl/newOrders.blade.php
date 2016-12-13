@@ -1,17 +1,17 @@
-<!-- BOL BE -->
+<!-- BOL NL -->
 
 @extends('layouts.app')
 @section('content')
 
-<div id="newBolBeOrderapp">
+<div id="newBolNlOrderapp">
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-12">
             <div class="panel panel-default">
-                <h4 class="panel-heading">Nog te verwerken Orders - BOL BELGIË</h4>
+                <h4 class="panel-heading">Nog te verwerken Orders - BOL NEDERLAND</h4>
                 <div class="panel-body">
                    <body>
-                        @foreach($newBolBeOrders as $newOrder)
+                        @foreach($newBolNlOrders as $newOrder)
                             @if($newOrder->current_state < 3) 
                                 <div class="panel panel-danger">
                             @elseif($newOrder->current_state == 3)   
@@ -23,8 +23,8 @@
                             @else
                                 <div class="panel panel-default">
                             @endif
-                            <div style="height: 23px;padding:0" class="panel-heading"> Order : BOLBE/{{ $newOrder->id_bol_be_orders }} - Bol-ref: {{ $newOrder->bol_be_order_id }} / <b>{{ $newOrder->delivery_lastname }}  {{ $newOrder->delivery_firstname }} ({{ $newOrder->email_for_delivery }})</b>
-                                   <div id="current_state_{{ $newOrder->id_bol_be_orders }}" class="pull-right">{{ $newOrder->orderState->name }}   </div><br>
+                            <div style="height: 23px;padding:0" class="panel-heading"> Order : BOLNL/{{ $newOrder->id_bol_nl_orders }} - Bol-ref: {{ $newOrder->bol_nl_order_id }} / <b>{{ $newOrder->delivery_lastname }}  {{ $newOrder->delivery_firstname }} ({{ $newOrder->email_for_delivery }})</b>
+                                   <div id="current_state_{{ $newOrder->id_bol_nl_orders }}" class="pull-right">{{ $newOrder->orderState->name }}   </div><br>
                             </div>
                             <div class="panel-body">
                                 <body>
@@ -61,7 +61,7 @@
                                                     <th type="number">totaal</th>
                                                     <th type="number"> Bol Kost</th>
                                                 </tr>
-                                                @foreach( $newOrder->bolBeOrderDetails as $orderDetail)
+                                                @foreach( $newOrder->bolNlOrderDetails as $orderDetail)
                                                     <tr>
                                                         <td type="text">{{ $orderDetail->quantity}}</td>
                                                         <td type="text">{{ $orderDetail->id_product }} / {{ $orderDetail->product_name }}</td>
@@ -75,17 +75,17 @@
                                     </div>
                                     <div class="btn-group btn-small btn-panel pull-right">
                                         @if($newOrder->current_state < 3)
-                                            <button type="button" v-on:click="setState({{ $newOrder->id_bol_be_orders }}, $event)" id="btn-1" class='btn btn-state btn-warning btn-sm'>
-                                                <span id="spinner_{{ $newOrder->id_bol_be_orders }}" class=" spinner glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Voorbereiding Starten</button>
+                                            <button type="button" v-on:click="setState({{ $newOrder->id_bol_nl_orders }}, $event)" id="btn-1" class='btn btn-state btn-warning btn-sm'>
+                                                <span id="spinner_{{ $newOrder->id_bol_nl_orders }}" class=" spinner glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Voorbereiding Starten</button>
                                         @elseif($newOrder->current_state == 3)
-                                            <button type="button" v-on:click="setState({{ $newOrder->id_bol_be_orders }}, $event)" id="btn-2" class='btn btn-state btn-success btn-sm'>
-                                                <span id="spinner_{{ $newOrder->id_bol_be_orders }}" class=" spinner glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Als 'verzonden' plaatsen</button>
+                                            <button type="button" v-on:click="setState({{ $newOrder->id_bol_nl_orders }}, $event)" id="btn-2" class='btn btn-state btn-success btn-sm'>
+                                                <span id="spinner_{{ $newOrder->id_bol_nl_orders }}" class=" spinner glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Als 'verzonden' plaatsen</button>
                                         @elseif($newOrder->current_state == 4)
-                                            <button type="button" v-on:click="setState({{ $newOrder->id_bol_be_orders}}, $event)" id="btn-3" class='btn btn-state btn-primary btn-sm'>
-                                                <span id="spinner_{{ $newOrder->id_bol_be_orders }}" class=" spinner glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Als 'afgeleverd' plaatsen</button>
+                                            <button type="button" v-on:click="setState({{ $newOrder->id_bol_nl_orders}}, $event)" id="btn-3" class='btn btn-state btn-primary btn-sm'>
+                                                <span id="spinner_{{ $newOrder->id_bol_nl_orders }}" class=" spinner glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Als 'afgeleverd' plaatsen</button>
                                         @elseif($newOrder->current_state == 5)
-                                            <button type="button" v-on:click="setState({{ $newOrder->id_bol_be_orders }}, $event)" id="btn-4" class='btn btn-state btn-default btn-sm'>
-                                            <span id="spinner_{{ $newOrder->id_bol_be_orders }}" class=" spinner glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Factuur maken</button>
+                                            <button type="button" v-on:click="setState({{ $newOrder->id_bol_nl_orders }}, $event)" id="btn-4" class='btn btn-state btn-default btn-sm'>
+                                            <span id="spinner_{{ $newOrder->id_bol_nl_orders }}" class=" spinner glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Factuur maken</button>
                                         @endif
                                     </div>
                                 </body>
@@ -109,8 +109,8 @@ $( document ).ready(function() {
 });
 
 // Change current_state from a order
-var newBolBeOrderApp = new Vue({
-    el: '#newBolBeOrderapp',
+var newBolNlOrderApp = new Vue({
+    el: '#newBolNlOrderapp',
     data: {
     },
     methods: 

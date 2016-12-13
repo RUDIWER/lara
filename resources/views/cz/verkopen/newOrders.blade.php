@@ -39,7 +39,8 @@
                                             <br>
                                             <b>Leveringsadres :</b><br>
                                             {{ $newOrder->deliveryAddress->phone }}    {{ $newOrder->deliveryAddress->phone_mobile}}<br>
-                                            {{ $newOrder->deliveryAddress->company }}  {{ $newOrder->deliveryAddress->vat_number }}<br>
+                                            {{ $newOrder->deliveryAddress->company }}  {{ $newOrder->deliveryAddress->vat_number }}<br> 
+                                            {{ $newOrder->deliveryAddress->firstname }} {{ $newOrder->deliveryAddress->lastname }}<br>
                                             {{ $newOrder->deliveryAddress->address1}}<br>
                                             {{ $newOrder->deliveryAddress->address2}}<br>
                                             {{ $newOrder->deliveryAddress->postcode}} {{ $newOrder->deliveryAddress->city}}  {{ $newOrder->deliveryAddress->country->name }}
@@ -113,16 +114,16 @@
                                                                          or $newOrder->current_state == 11
                                                                          or $newOrder->current_state == 8 )
                                             <button type="button" v-on:click="setState({{ $newOrder->id_order }}, $event)" id="btn-1" class='btn btn-state btn-warning btn-sm'>
-                                              <span id="spinner_{{ $newOrder->id_order }}" class=" spinner glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Wordt voorbereid</button>
+                                              <span id="spinner_{{ $newOrder->id_order }}" class=" spinner glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Voorbereiding starten</button>
                                         @elseif($newOrder->current_state == 3)
                                             <button type="button" v-on:click="setState({{ $newOrder->id_order }}, $event)" id="btn-2" class='btn btn-state btn-success btn-sm'>
-                                             <span id="spinner_{{ $newOrder->id_order }}" class=" spinner glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Verzonden</button>
+                                             <span id="spinner_{{ $newOrder->id_order }}" class=" spinner glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Als 'verzonden' plaatsen</button>
                                         @elseif($newOrder->current_state == 4)
                                             <button type="button" v-on:click="setState({{ $newOrder->id_order }}, $event)" id="btn-3" class='btn btn-state btn-primary btn-sm'>
-                                             <span id="spinner_{{ $newOrder->id_order }}" class=" spinner glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Afgeleverd</button>
+                                             <span id="spinner_{{ $newOrder->id_order }}" class=" spinner glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Als 'afgeleverd' plaatsen</button>
                                         @elseif($newOrder->current_state == 5)
                                             <button type="button" v-on:click="setState({{ $newOrder->id_order }}, $event)" id="btn-4" class='btn btn-state btn-default btn-sm'>
-                                            <span id="spinner_{{ $newOrder->id_order }}" class=" spinner glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Fakturatie</button>
+                                            <span id="spinner_{{ $newOrder->id_order }}" class=" spinner glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Factuur maken</button>
                                         @endif
                                     </div>
                                   </body>
@@ -137,13 +138,14 @@
     @include('partials.footer')
 </div>
 </div> <!-- close app -->
+<!--  @include('partials.pictureForm') -->
 
 
 <script src="/js/vue.min.js" type="text/javascript"></script>
 <script type="text/javascript" charset="utf-8">
 
 $( document ).ready(function() {
-     $('span.spinner').hide();    
+     $('span.spinner').hide();  
 });
 
 // Change current_state from a order

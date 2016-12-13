@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB;
-use App\Models\BolBeOrders;
-use App\Models\BolBeOrderDetail;
+use App\Models\BolNlOrders;
+use App\Models\BolNlOrderDetail;
 use App\Models\PsCustomer;
 use App\Models\CzParameter;
 use App\Models\PsAddress;
@@ -18,7 +18,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use MCS\BolPlazaClient;
 
-class BolCustOrderController extends Controller
+class BolNlCustOrderController extends Controller
 {
     public function __construct()
     {
@@ -29,8 +29,8 @@ class BolCustOrderController extends Controller
     {
         $notCommited = 0; // var used to check if transaction is commited or not !
         $param = CzParameter::find(1);
-        $order = BolBeOrders::find($id_order);
-        $orderDetails = BolBeOrders::find($id_order)->bolBeOrderDetails;
+        $order = BolNlOrders::find($id_order);
+        $orderDetails = BolNlOrders::find($id_order)->bolNlOrderDetails;
         if($newState == 3)  // Order wordt overgezet van ontvangen naar -> Wordt voorbereid (in verschillende stappen !)
         {   
             // 1) PAS VOORRAAD AAN ZOWEL CZ_PRODUT ALS PS_PRODUCT ....
@@ -78,7 +78,7 @@ class BolCustOrderController extends Controller
                 $orderStateSaved = $order->save();   
             } 
          //indien gelukt -> mail naar klant !!!    
-         // LET OP gebruik Email uit BolBeOrders !!! Niet uit klantenbestand !!
+         // LET OP gebruik Email uit BolNlOrders !!! Niet uit klantenbestand !!
             if($orderStateSaved)
             {
              // Send mail to client to inform order state changeState
@@ -120,7 +120,7 @@ class BolCustOrderController extends Controller
         {
           // 1) Create invoice
              $invoice = new CzCustInvoice;
-             $invoice->ordernr_bol = $order->bol_be_order_id;
+             $invoice->ordernr_bol = $order->bol_nl_order_id;
              $invoice->id_customer = $order->id_customer;
              $invoice->customer_name = $order->customer->lastname;
              $invoice->customer_first_name = $order->customer->firstname;
@@ -143,8 +143,8 @@ class BolCustOrderController extends Controller
              }
              $invoice->invoice_date = date("Y/m/d");
              $invoice->order_date = $order->date_order;   
-             $invoice->order_reference = $order->id_bol_be_orders;
-             $invoice->payment_method = 'Via Bol.com BE';
+             $invoice->order_reference = $order->id_bol_nl_orders;
+             $invoice->payment_method = 'Via Bol.com NL';
              $invoice->total_shipping_btw_procent = $param->stand_vat_procent;
              $invoice->total_shipping_exl_btw = 0;
              $invoice->total_shipping_incl_btw = 0;       
@@ -166,7 +166,7 @@ class BolCustOrderController extends Controller
              $invoice->customer_phone = $order->delivery_phone_number;
              $invoice->customer_email = $order->customer->email_for_delivery;
              // Shipping Cost berekenen LET OP !!! Indien er in Prestashop nieuwe vervoerders bijkomen dient hier de code aangepast te worden !!!!!!!
-             $invoice->total_shipping_cost_exl_btw = $param->shipping_cost_bol_be_ex_btw; 
+             $invoice->total_shipping_cost_exl_btw = $param->shipping_cost_bol_nl_ex_btw; 
              $invoice->company_name = $order->invoice_company;
              $invoice->total_invoice_exl_btw = $invoice->total_products_exl_btw; 
              $invoice->total_invoice_incl_btw = $invoice->total_products_incl_btw;
@@ -236,13 +236,11 @@ class BolCustOrderController extends Controller
 
     public function getBolOrders()
     {
-        // or live API: https://plazaapi.bol.com
-       //  $url = 'https://test-plazaapi.bol.com';     // test url
         $url = 'https://plazaapi.bol.com';    // Productie url
         $uri = '/services/rest/orders/v2';
         // Your BOL keys
-        $publicKey = env('BOL_BE_PUBLIC_PROD_KEY');
-        $privateKey = env('BOL_BE_PRIVATE_PROD_KEY');
+        $publicKey = env('BOL_NL_PUBLIC_PROD_KEY');
+        $privateKey = env('BOL_NL_PRIVATE_PROD_KEY');
         $param = CzParameter::find(1);
 
 
@@ -256,7 +254,7 @@ class BolCustOrderController extends Controller
             foreach($newPlazaOrders as $plazaOrder)
             {             
                 $plazaOrderId = $plazaOrder->id;
-                $orderExist = BolBeOrders::where('bol_be_order_id',$plazaOrderId)->get();
+                $orderExist = BolNlOrders::where('bol_nl_order_id',$plazaOrderId)->get();
                 if($orderExist->isEmpty())     // If new order not yet imported !
                 { 
                     // 1) Look if it is existing client of new client based on name + address + HousNumber
@@ -299,7 +297,7 @@ class BolCustOrderController extends Controller
                         $customer->passwd = 'ZWD1234567890';
                         $customer->last_passwd_gen = date('Y-m-d H:i:s');
                         $customer->newsletter = '0';
-                        $customer->note = 'Bol.com BE';
+                        $customer->note = 'Bol.com NL';
                         $customer->active = '1';
                         $customer->is_guest = '0';
                         $customer->date_add = date('Y-m-d H:i:s');
@@ -475,8 +473,8 @@ class BolCustOrderController extends Controller
                         $invAddress->save();        
                     }  // End If customer exist or not 
                     // Create ORDER !!!!! (include last delivery address in order to be sure that delivery goes to correct address with all info )
-                    $bolOrder = new BolBeOrders;
-                    $bolOrder->bol_be_order_id = $plazaOrderId;
+                    $bolOrder = new BolNlOrders;
+                    $bolOrder->bol_nl_order_id = $plazaOrderId;
                     $bolOrder->current_state = 2;
                     $bolOrder->id_customer = $idBolCustomer;
                     $bolOrder->date_order = substr(($plazaOrder->date),0,10);
@@ -660,8 +658,8 @@ class BolCustOrderController extends Controller
                     $bolOrder->date_upd =  date('Y-m-d H:i:s');
                 //    dd($bolOrder);
                     $bolOrder->save();
-                    $lastBolBeOrder = BolBeOrders::orderBy('id_bol_be_orders', 'desc')->first();
-                    $lastIdBolBeOrders = $lastBolBeOrder->id_bol_be_orders;
+                    $lastBolNlOrder = BolNlOrders::orderBy('id_bol_nl_orders', 'desc')->first();
+                    $lastIdBolNlOrders = $lastBolNlOrder->id_bol_nl_orders;
 
 
 
@@ -675,9 +673,9 @@ class BolCustOrderController extends Controller
                     foreach($plazaOrderItems as $plazaOrderItem)
                     {
                  //       dd($plazaOrderItem);
-                        $orderRow = new BolBeOrderDetail;
-                        $orderRow->id_bol_be_orders = $lastIdBolBeOrders;
-                        $orderRow->bol_be_order_id = $plazaOrderId;
+                        $orderRow = new BolNlOrderDetail;
+                        $orderRow->id_bol_nl_orders = $lastIdBolNlOrders;
+                        $orderRow->bol_nl_order_id = $plazaOrderId;
                         if($plazaOrderItem->OrderItemId)
                         {
                             $orderRow->bol_item_id = $plazaOrderItem->OrderItemId;
@@ -689,8 +687,8 @@ class BolCustOrderController extends Controller
                             $czProduct = CzProduct::where('id_product',$orderRow->id_product)->first();
 
                             $orderRow->vat_procent = $czProduct->vat_procent;
-                            $orderRow->shipping_cost_bol_be = $param->shipping_cost_bol_be_ex_btw;
-                            $orderRow->calc_bol_be_cost = $czProduct->bol_be_cost; 
+                            $orderRow->shipping_cost_bol_nl = $param->shipping_cost_bol_nl_ex_btw;
+                            $orderRow->calc_bol_nl_cost = $czProduct->bol_nl_cost; 
                             $orderRow->unit_ikp_cz_ex_vat = $czProduct->ikp_ex_cz;                                         
                         }
                     
@@ -727,14 +725,14 @@ class BolCustOrderController extends Controller
         } // En if orders
         // Return New BOL-BE orders to the view
       //  $newBolBeOrders = BolBeOrders::all();
-        $newBolBeOrders = BolBeOrders::where('current_state','<=',5)
+        $newBolNlOrders = BolNlOrders::where('current_state','<=',5)
                             ->orwhere('current_state','=',11)
                             ->orwhere('current_state','=',12)
                             ->orwhere('current_state','=',14)
                             ->orwhere('current_state','=',16)
-                            ->orderBy('id_bol_be_orders', 'desc')
+                            ->orderBy('id_bol_nl_orders', 'desc')
                             ->orwhere('current_state','=',17)->get();
-        return view('bol.be.newOrders', compact('newBolBeOrders'));
+        return view('bol.nl.newOrders', compact('newBolNlOrders'));
     } // En function GetBolOrders
 
 } // End class
