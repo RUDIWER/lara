@@ -30,7 +30,7 @@
                                 <body>
                                     <div class="row">
                                         <div class="col-xs-3 pull-left">
-                                            <b>Datum : {{ $newOrder->date_order }}</b>
+                                            <b>Datum : {{ $newOrder->date_order }} {{$newOrder->time_order}}</b>
                                             <br>
                                             <b>Leveringsadres :</b><br>
                                             {{ $newOrder->delivery_phone_number }}<br>
