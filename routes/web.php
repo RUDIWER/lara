@@ -58,18 +58,19 @@ Route::post('producten/save/{id_cz_product}','CzProductController@save');
 
 // BOL-BE routes
 Route::get('bol-be/verkopen/nieuwe-orders', 'BolCustOrderController@getBolOrders');
+Route::post('bol-be/verkopen/nieuwe-orders/wijzig-status/{id_order}/{newState}','BolCustOrderController@changeState');
+
 
 // BOL-NL routes
 Route::get('bol-nl/verkopen/nieuwe-orders', 'BolNlCustOrderController@getBolOrders');
-
+Route::post('bol-nl/verkopen/nieuwe-orders/wijzig-status/{id_order}/{newState}','BolNlCustOrderController@changeState');
 
 
 // Bol-TEST routes
-Route::get('bol/test', 'BolTestController@postBolShipment');
+Route::get('bol/test', 'BolTestController@test');
 Route::get('bol/test/get-offers', 'BolTestController@getOffers');
 Route::get('bol/test/del-offers', 'BolTestController@delOffers');
 
-Route::post('bol-be/verkopen/nieuwe-orders/wijzig-status/{id_order}/{newState}','BolCustOrderController@changeState');
 
 
 // CZ VERKOPEN routes

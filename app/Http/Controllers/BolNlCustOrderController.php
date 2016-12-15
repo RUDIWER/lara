@@ -33,6 +33,7 @@ class BolNlCustOrderController extends Controller
         $orderDetails = BolNlOrders::find($id_order)->bolNlOrderDetails;
         if($newState == 3)  // Order wordt overgezet van ontvangen naar -> Wordt voorbereid (in verschillende stappen !)
         {   
+    //****** VOORRAAD AANPASSEN *****        
             // 1) PAS VOORRAAD AAN ZOWEL CZ_PRODUT ALS PS_PRODUCT ....
             foreach($orderDetails as $orderDetail) 
             {
@@ -43,9 +44,7 @@ class BolNlCustOrderController extends Controller
             //2) Ps_product (Via Ps_stock_available)
                 $psStockAvailable = PsStockAvailable::where('id_product',$orderDetail->id_product)->first();
                 $psStockAvailable->quantity = $czProduct->quantity_in_stock;
-            //3) Hier komt stockaanpassing bij BOL.COM     TO DO !!!!!!!!!!!!!!!!!!!!!!!!!!
-            // Niet zeker of stock aanpassing nodig is bij BOL Order -> Afwachten antwoord bol
-            // If stock is Nul or lower -> Deactivate in Shop AND in BOL BOL TO DO !!!!!!!!!!!!!!!!!!!!
+            //3) Hier komt stockaanpassing bij BOL.BE     TO DO !!!!!!!!!!!!!!!!!!!!!!!!!!
                 $psProduct = PsProduct::where('id_product',$orderDetail->id_product)->first();
                 $psProductShop = PsProductShop::where('id_product',$orderDetail->id_product)->first();
                 if($czProduct->quantity_in_stock <= 0)
@@ -116,6 +115,22 @@ class BolNlCustOrderController extends Controller
 
             }
         } // end if $newState=5
+                // newState is 6 order annuleren
+        elseif($newState == 6)
+        {
+            //Plaats status op Geannuleerd
+            if($notCommited != 1)     // LET OP DEZE WAARDE MOET 1 ZIJN ALS TESTEN GEDAAN IS !!!!!!!!!!
+            {
+                $order->current_state = $newState;
+                foreach($orderDetails as $orderDetail) 
+                {
+                    $stock = new InventoryClass($orderDetail->id_product,$orderDetail->quantity);
+                    $stock->increaseOnAnnul();
+                }
+                $orderStateSaved = $order->save();
+            }  
+        }
+
         elseif($newState == 19)         // Order to invoice
         {
           // 1) Create invoice

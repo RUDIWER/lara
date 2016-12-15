@@ -56,7 +56,7 @@
                                             <table class="order-table">
                                                 <tr>
                                                     <th type="text">Aantal </th>
-                                                    <th type="text">Omschrijving</th>
+                                                    <th align="center">Omschrijving</th>
                                                     <th type="number">Eenh. Prijs</th>
                                                     <th type="number">totaal</th>
                                                     <th type="number"> Bol Kost</th>
@@ -78,6 +78,8 @@
                                             <button type="button" v-on:click="setState({{ $newOrder->id_bol_nl_orders }}, $event)" id="btn-1" class='btn btn-state btn-warning btn-sm'>
                                                 <span id="spinner_{{ $newOrder->id_bol_nl_orders }}" class=" spinner glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Voorbereiding Starten</button>
                                         @elseif($newOrder->current_state == 3)
+                                            <button type="button" v-on:click="setState({{ $newOrder->id_bol_nl_orders }}, $event)" id="btn-annuleer" class='btn btn-state btn-danger btn-sm  pull-left'>
+                                                <span id="spinner2_{{ $newOrder->id_bol_nl_orders }}" class=" spinner glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Annuleer Order</button>
                                             <button type="button" v-on:click="setState({{ $newOrder->id_bol_nl_orders }}, $event)" id="btn-2" class='btn btn-state btn-success btn-sm'>
                                                 <span id="spinner_{{ $newOrder->id_bol_nl_orders }}" class=" spinner glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Als 'verzonden' plaatsen</button>
                                         @elseif($newOrder->current_state == 4)
@@ -126,6 +128,8 @@ var newBolNlOrderApp = new Vue({
                 var newState = 5;
             }else if (currentState == "btn-4") {
                 var newState = 19;
+                        }else if (currentState == "btn-annuleer") {
+                var newState = 6;
             }
             var formData = {
                 "_token": "{{ csrf_token() }}",
@@ -135,8 +139,14 @@ var newBolNlOrderApp = new Vue({
             var spinId = "#spinner_" + id_order; 
             $.ajaxSetup({
                 beforeSend: function() 
-                {
-                    $(spinId).show();
+                                {
+                    if (currentState == "btn-annuleer"){
+                         $("#spinner2_" + id_order).show();
+                    }
+                    else
+                    {
+                        $(spinId).show();
+                    }
                  },
             });
 

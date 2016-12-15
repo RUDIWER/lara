@@ -39,7 +39,7 @@ class CzProductController extends Controller
         $connector->configure(
             new CzProduct(),
             "id",
-            "id_cz_product,id_product,reference,name,ikp_ex_cz,vkp_cz_in_vat,vkp_bol_be_in_vat"
+            "id_cz_product,id_product,reference,name,quantity_in_stock,ikp_ex_cz,vkp_cz_in_vat,vkp_bol_be_in_vat"
         );
         $connector->render();
     }

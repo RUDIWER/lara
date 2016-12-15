@@ -26,22 +26,23 @@
 // Customer Grid
     mygrid = new dhtmlXGridObject('product_grid');
     mygrid.enableSmartRendering(true); // false to disable
-    mygrid.setHeader("Id CZ,Id,referentie,Omschrijving,Inkoopprijs,Verkoopprijs CZ,Verkoopprijs Bol.Be");
-    mygrid.attachHeader("#numeric_filter,#numeric_filter,#text_filter,#text_filter,#numeric_filter,#numeric_filter,#numeric_filter");
+    mygrid.setHeader("Id CZ,Id,referentie,Omschrijving,Voorraad,Inkoopprijs,Verkoopprijs CZ,Verkoopprijs Bol.Be");
+    mygrid.attachHeader("#numeric_filter,#numeric_filter,#text_filter,#text_filter,#numeric_filter,#numeric_filter,#numeric_filter,#numeric_filter");
     mygrid.enableKeyboardSupport(true);
-    mygrid.setColTypes("ron,ron,ro,ro,ron,ron,ron");
-    mygrid.setInitWidths("35,35,*,400,*,*,*");
-    mygrid.setNumberFormat("0,000.00",4);
+    mygrid.setColTypes("ron,ron,ro,ro,ron,ron,ron,ron");
+    mygrid.setInitWidths("35,35,*,400,*,*,*,*");
+    mygrid.setNumberFormat("0,000",4);
     mygrid.setNumberFormat("0,000.00",5);
     mygrid.setNumberFormat("0,000.00",6);
     mygrid.setNumberFormat("0,000.00",7);
+    mygrid.setNumberFormat("0,000.00",8);
     mygrid.enableLightMouseNavigation(true);
     mygrid.enableStableSorting(true);
     mygrid.setColumnHidden(0,true);
     mygrid.init();
-    mygrid.setColAlign("right,right,left,left,right,right,right");
+    mygrid.setColAlign("right,right,left,left,right,right,right,right");
     mygrid.enableAlterCss("even","uneven");
-    mygrid.setColSorting("int,int,str,str,int,int,int");
+    mygrid.setColSorting("int,int,str,str,int,int,int,int");
     //                mygrid.sortRows(0, "str", "asc"); // sorts grid
     mygrid.setSortImgState(true, 1, "asc"); // sets icon to sort arrow
     mygrid.load("./product_data",function(){

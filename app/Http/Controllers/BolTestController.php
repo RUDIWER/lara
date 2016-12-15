@@ -9,12 +9,19 @@ use App\Models\PsAddress;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use MCS\BolPlazaClient;
+use App\Lara_Classes\InventoryClass;
 
 class BolTestController extends Controller
 {
     public function __construct()
     {
         $this->middleware('auth');
+    }
+
+    public function test()
+    {
+        $stock = new InventoryClass(11,2);
+        $stock->reduceOnDelivery();
     }
 
     public function delOffers()
@@ -38,7 +45,7 @@ class BolTestController extends Controller
         $client = new BolPlazaClient($publicKey, $privateKey, false);
 
         $offerFile = $client->requestOfferFile();
-        sleep(500);
+        sleep(400);
         $offers = $client->getOffers($offerFile);
         dd($offers);
     }

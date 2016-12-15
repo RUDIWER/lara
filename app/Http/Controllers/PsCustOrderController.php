@@ -41,9 +41,10 @@ class PsCustOrderController extends Controller
         $orderDetails = PsOrders::find($id_order)->orderDetails;
         if($newState == 3)  // Order wordt overgezet van ontvangen naar -> Wordt voorbereid (in verschillende stappen !)
         {          
+     //***** VOORRAAD ***************************************************      
             // 1) PAS VOORRAAD AAN ZOWEL CZ_PRODUT ALS PS_PRODUCT ALS BOL ....
             foreach ($orderDetails as $orderDetail) 
-            {
+            {    
             //1) CZ_product voorraad -x / Te factureren +x
                 $czProduct = CzProduct::where('id_product',$orderDetail->product_id)->first();
                 $czProduct->quantity_in_stock = $czProduct->quantity_in_stock - $orderDetail->product_quantity;
@@ -51,8 +52,25 @@ class PsCustOrderController extends Controller
             //2) Ps_product (Via Ps_stock_available)
                 $psStockAvailable = PsStockAvailable::where('id_product',$orderDetail->product_id)->first();
                 $psStockAvailable->quantity = $czProduct->quantity_in_stock;
-            //3) Hier komt stockaanpassing bij BOL.COM     TO DO !!!!!!!!!!!!!!!!!!!!!!!!!!
-
+            //3) BOL NL  
+                if($czProduct->active_bol_nl == 1)
+                {
+                    $publicNlKey = env('BOL_NL_PUBLIC_PROD_KEY');
+                    $privateNlKey = env('BOL_NL_PRIVATE_PROD_KEY');
+                    $clientNl = new BolPlazaClient($publicNlKey, $privateNlKey, false);
+                    $inventory = 0;
+                    if($czProduct->quantity_in_stock < 0)
+                    {
+                    $inventory = 0;
+                    }
+                    else
+                    {
+                        $inventory = $czProduct->quantity_in_stock;
+                    }
+                    $updateNl = $clientNl->updateOfferStock($czProduct->id_product, $inventory);
+                }
+            // 4) BOL BE (TO DO After reimport of products)
+            //
             // If stock is Nul or lower -> Deactivate in Shop AND in BOL BOL TO DO !!!!!!!!!!!!!!!!!!!!
                 $psProduct = PsProduct::where('id_product',$orderDetail->product_id)->first();
                 $psProductShop = PsProductShop::where('id_product',$orderDetail->product_id)->first();
@@ -131,6 +149,21 @@ class PsCustOrderController extends Controller
                 });
             }
         } // end if $newState=5
+                // newState is 6 order annuleren
+        elseif($newState == 6)
+        {
+            //Plaats status op Geannuleerd
+            if($notCommited != 1)     // LET OP DEZE WAARDE MOET 1 ZIJN ALS TESTEN GEDAAN IS !!!!!!!!!!
+            {
+                $order->current_state = $newState;
+                foreach($orderDetails as $orderDetail) 
+                {
+                    $stock = new InventoryClass($orderDetail->id_product,$orderDetail->quantity);
+                    $stock->increaseOnAnnul();
+                }
+                $orderStateSaved = $order->save();
+            }  
+        }
         elseif($newState == 19)         // Order to invoice
         {
           // 1) Create invoice

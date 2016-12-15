@@ -14,9 +14,11 @@ use App\Models\PsProductShop;
 use App\Models\PsStockAvailable;
 use App\Models\CzCustInvoice;
 use App\Models\CzCustInvoiceDetail;
+use App\Lara_Classes\InventoryClass;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use MCS\BolPlazaClient;
+
 
 class BolCustOrderController extends Controller
 {
@@ -43,9 +45,23 @@ class BolCustOrderController extends Controller
             //2) Ps_product (Via Ps_stock_available)
                 $psStockAvailable = PsStockAvailable::where('id_product',$orderDetail->id_product)->first();
                 $psStockAvailable->quantity = $czProduct->quantity_in_stock;
-            //3) Hier komt stockaanpassing bij BOL.COM     TO DO !!!!!!!!!!!!!!!!!!!!!!!!!!
-            // Niet zeker of stock aanpassing nodig is bij BOL Order -> Afwachten antwoord bol
-            // If stock is Nul or lower -> Deactivate in Shop AND in BOL BOL TO DO !!!!!!!!!!!!!!!!!!!!
+           //3) BOL NL  
+                if($czProduct->active_bol_nl == 1)
+                {
+                    $publicNlKey = env('BOL_NL_PUBLIC_PROD_KEY');
+                    $privateNlKey = env('BOL_NL_PRIVATE_PROD_KEY');
+                    $clientNl = new BolPlazaClient($publicNlKey, $privateNlKey, false);
+                    $inventory = 0;
+                    if($czProduct->quantity_in_stock < 0)
+                    {
+                        $inventory = 0;
+                    }
+                    else
+                    {
+                        $inventory = $czProduct->quantity_in_stock;
+                    }
+                    $updateNl = $clientNl->updateOfferStock($czProduct->id_product, $inventory);
+                }
                 $psProduct = PsProduct::where('id_product',$orderDetail->id_product)->first();
                 $psProductShop = PsProductShop::where('id_product',$orderDetail->id_product)->first();
                 if($czProduct->quantity_in_stock <= 0)
@@ -68,7 +84,7 @@ class BolCustOrderController extends Controller
                 {      // something went wrong
                     $notCommited = 1;
                     DB::rollback();
-                    throw $e;
+                    throw new Exception($e);
                 } 
             } // end foreach $orderDetails  
          // After all changes are done ->Change order_state
@@ -116,6 +132,21 @@ class BolCustOrderController extends Controller
 
             }
         } // end if $newState=5
+        // newState is 6 order annuleren
+        elseif($newState == 6)
+        {
+            //Plaats status op Geannuleerd
+            if($notCommited != 1)     // LET OP DEZE WAARDE MOET 1 ZIJN ALS TESTEN GEDAAN IS !!!!!!!!!!
+            {
+                $order->current_state = $newState;
+                foreach($orderDetails as $orderDetail) 
+                {
+                    $stock = new InventoryClass($orderDetail->id_product,$orderDetail->quantity);
+                    $stock->increaseOnAnnul();
+                }
+                $orderStateSaved = $order->save();
+            }  
+        }
         elseif($newState == 19)         // Order to invoice
         {
           // 1) Create invoice
