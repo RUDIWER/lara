@@ -107,7 +107,6 @@ class CzProductController extends Controller
     public function save(Request $request, $id_cz_product)
     {
         $data = $request->all();
-        dd($data);
         $CzProduct = CzProduct::findornew($id_cz_product);
         $alReadyOnBolNl = $CzProduct->active_bol_nl;
         $CzProduct->fill($data);
