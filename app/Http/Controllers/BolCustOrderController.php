@@ -60,6 +60,7 @@ class BolCustOrderController extends Controller
                     {
                         $inventory = $czProduct->quantity_in_stock;
                     }
+                    
                     $updateNl = $clientNl->updateOfferStock($czProduct->id_product, $inventory);
                 }
                 $psProduct = PsProduct::where('id_product',$orderDetail->id_product)->first();
@@ -151,7 +152,7 @@ class BolCustOrderController extends Controller
         {
           // 1) Create invoice
              $invoice = new CzCustInvoice;
-             $invoice->ordernr_bol = $order->bol_be_order_id;
+             $invoice->ordernr_bol = ('BE/'. $order->bol_be_order_id);
              $invoice->id_customer = $order->id_customer;
              $invoice->customer_name = $order->customer->lastname;
              $invoice->customer_first_name = $order->customer->firstname;

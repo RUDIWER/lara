@@ -48,6 +48,7 @@ class CzProductController extends Controller
         $product = new CzProduct();
         $product->ikp_supplier = 0;
         $product->active = 0;
+        $product->active_bol_nl = 0;
         $product->cost_factor = 1;
         $product->bol_group_cost_fix = 0;
         $product->bol_group_cost_procent = 0;
@@ -106,6 +107,7 @@ class CzProductController extends Controller
     public function save(Request $request, $id_cz_product)
     {
         $data = $request->all();
+        dd($data);
         $CzProduct = CzProduct::findornew($id_cz_product);
         $alReadyOnBolNl = $CzProduct->active_bol_nl;
         $CzProduct->fill($data);

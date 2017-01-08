@@ -14,6 +14,7 @@ use App\Models\PsProductShop;
 use App\Models\PsStockAvailable;
 use App\Models\CzCustInvoice;
 use App\Models\CzCustInvoiceDetail;
+use App\Lara_Classes\InventoryClass;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use MCS\BolPlazaClient;
@@ -135,7 +136,7 @@ class BolNlCustOrderController extends Controller
         {
           // 1) Create invoice
              $invoice = new CzCustInvoice;
-             $invoice->ordernr_bol = $order->bol_nl_order_id;
+             $invoice->ordernr_bol = ('NL/' . $order->bol_nl_order_id);
              $invoice->id_customer = $order->id_customer;
              $invoice->customer_name = $order->customer->lastname;
              $invoice->customer_first_name = $order->customer->firstname;

@@ -11,7 +11,9 @@ use App\Models\PsProductShop;
 use App\Models\PsStockAvailable;
 use App\Models\CzCustInvoice;
 use App\Models\CzCustInvoiceDetail;
+use App\Lara_Classes\InventoryClass;
 use Illuminate\Http\Request;
+use MCS\BolPlazaClient;
 use Mail;
 
 class PsCustOrderController extends Controller
@@ -61,7 +63,7 @@ class PsCustOrderController extends Controller
                     $inventory = 0;
                     if($czProduct->quantity_in_stock < 0)
                     {
-                    $inventory = 0;
+                        $inventory = 0;
                     }
                     else
                     {
@@ -219,10 +221,14 @@ class PsCustOrderController extends Controller
                 if($order->deliveryAddress->id_country == 3) //Belgium
                 {   
                     $invoice->total_shipping_cost_exl_btw = $param->shipping_cost_cz_be_ex_btw; 
+                    $invoice->invoice_type = '4';
+
                 }
                 elseif($order->deliveryAddress->id_country == 13)   // NBetherlands
                 {
-                    $invoice->total_shipping_cost_exl_btw = $param->shipping_cost_cz_nl_ex_btw; 
+                    $invoice->total_shipping_cost_exl_btw = $param->shipping_cost_cz_nl_ex_btw;
+                    $invoice->invoice_type = '6';
+ 
                 }
                 else
                 {
@@ -235,7 +241,6 @@ class PsCustOrderController extends Controller
              $invoice->total_invoice_incl_btw = $order->total_paid_tax_incl;
              $invoice->total_wrapping_exl_btw = $order->total_wrapping_tax_excl;
              $invoice->total_wrapping_incl_btw = $order->total_wrapping_tax_incl;
-             $invoice->invoice_type = '4';
              if($invoice->total_wrapping_exl_btw > 0)
              {
                 $invoice->total_wrapping_cost_ex_btw = $param->wrapping_cost_ex_btw;

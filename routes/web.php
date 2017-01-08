@@ -79,10 +79,12 @@ Route::post('cz/verkopen/nieuwe-orders/wijzig-status/{id_order}/{newState}','PsC
 Route::get('cz/verkopen/nieuwe-orders/image/{id_product}');
 
 // CZ invoices routes
-Route::get('/verkopen/facturen','CzCustInvoiceController@invoices');
-Route::get('/verkopen/facturen/edit/{id_cust_invoice}','CzCustInvoiceController@edit');
+Route::get('verkopen/facturen','CzCustInvoiceController@invoices');
+Route::get('verkopen/facturen/create','CzCustInvoiceController@create');
+Route::get('verkopen/facturen/edit/{id_cust_invoice}','CzCustInvoiceController@edit');
 Route::match(['get', 'post'], '/verkopen/invoice_data', 'CzCustInvoiceController@invoiceData');
-Route::get('/verkopen/facturen/print/{id_cust_invoice}','printCzCustInvoiceController@getInvoicePdf');
+Route::get('verkopen/facturen/print/{id_cust_invoice}','printCzCustInvoiceController@getInvoicePdf');
+Route::post('verkopen/facturen/save/{id_invoice}','CzCustInvoiceController@save');
 
 
 

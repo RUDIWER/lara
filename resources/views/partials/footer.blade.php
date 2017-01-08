@@ -1,11 +1,10 @@
 <nav class="navbar navbar-inverse navbar-fixed-bottom" style="padding:0 0 4px 0">
-        <div class="container">
-            <div class="row">
-                <center>Copyright Rudi Werner - 2016</center>
-            </div>
+    <div class="container">
+        <div class="row">
+            <center>Copyright Rudi Werner - 2016</center>
         </div>
-    </nav>
-
+    </div>
+</nav>
 
 
 <!--    <center>Copyright Rudi Werner - 2016</center>  -->

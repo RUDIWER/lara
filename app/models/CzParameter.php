@@ -11,7 +11,8 @@ class CzParameter extends Model
     protected $fillable=[
         'shipping_cost_cz_be_ex_btw',
         'shipping_cost_cz_nl_ex_btw',
-        'max_cz_amount_for_shipping_cz',
+      //  'max_cz_amount_for_shipping_cz',   // Fout ??????
+        'min_order_amount_free_shipping',
         'stand_counted_shipping_cost_cz',
         'shipping_cost_bol_be_ex_btw',
         'shipping_cost_bol_nl_ex_btw',

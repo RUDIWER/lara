@@ -8,7 +8,7 @@
             <div class="panel panel-default">
                 <h4 class="panel-heading">facturen Overzicht
                     <div class="btn-group btn-titlebar pull-right">
-                       <a href="{{ URL::to('#') }}" type="button" class='btn btn-default btn-sm pull-right'>toevoegen</a>
+                       <a href="{{ URL::to('verkopen/facturen/create') }}" type="button" class='btn btn-default btn-sm pull-right'>toevoegen</a>
                     </div>
                 </h4>
                 <div class="panel-body">
