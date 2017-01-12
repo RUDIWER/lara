@@ -59,7 +59,8 @@
                                                     <th align="center">Omschrijving</th>
                                                     <th type="number">Eenh. Prijs</th>
                                                     <th type="number">totaal</th>
-                                                    <th type="number"> Bol Kost</th>
+                                                    <th type="number"> Bol Kost Eff.</th>
+                                                    <th type="number"> Bol Kost Calc.</th>
                                                 </tr>
                                                 @foreach( $newOrder->bolNlOrderDetails as $orderDetail)
                                                     <tr>
@@ -68,6 +69,7 @@
                                                         <td type="number">{{ round($orderDetail->unit_price_incl_vat,2) }}</td>
                                                         <td type="number">{{ round($orderDetail->row_price_incl_vat,2) }}</td>
                                                         <td type="number">{{ round($orderDetail->transaction_fee,2) }}</td>
+                                                        <td type="number">{{ round(($orderDetail->quantity * $orderDetail->calc_bol_nl_cost),2) }}</td>
                                                     </tr> 
                                                 @endforeach
                                             </table>
@@ -157,9 +159,9 @@ var newBolNlOrderApp = new Vue({
                 cache: false,
                 error: function (xhr, ajaxOptions, thrownError, data) 
                 {
-                    console.log('data : ' + data);
-                // alert(ajaxOptions);
-                //  alert(xhr.status);
+                console.log('data : ' + data);
+           //     alert(ajaxOptions);
+           //       alert(xhr.status);
                 //    alert(thrownError);
                 }
             })

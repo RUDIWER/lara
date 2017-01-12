@@ -299,9 +299,9 @@ class PsCustOrderController extends Controller
             // Change to invoice field  in Products 
                     $productInRow->quantity_to_invoice = $productInRow->quantity_to_invoice - $orderDetail->product_quantity;
                     $productInRow->save();
-                    DB::commit();
                     $notInvoiced = 0;
-                } //end foreach   
+                } //end foreach 
+                DB::commit();  
              } catch (\Exception $e) 
              {      // something went wrong
                  $notInvoiced = 1;

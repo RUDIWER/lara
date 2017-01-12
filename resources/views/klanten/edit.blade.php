@@ -95,7 +95,7 @@
                         <div class="row">
                             <div class="col-xs-8">
                                 <label class="control-label">E-mail adres</label>
-                                <input type="email" class="form-control input-sm input-required" required name="email" id="email" value="{{ $klant->email }}" placeholder="email">
+                                <input type="email" class="form-control input-sm" name="email" id="email" value="{{ $klant->email }}" placeholder="email">
                             </div>
                         </div> <!-- row -->
                         <div class="row">

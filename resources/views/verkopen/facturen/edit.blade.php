@@ -62,7 +62,7 @@
                                         @if ($isNew == 0)
                                             <input type="text" class="form-control input-sm" name="order_date" id="order_date" value="{{ $invoice->order_date }}" readonly tabindex="-1">
                                         @else
-                                            <input type="date" class="form-control input-sm" name="order_date" id="order_date" value="{{ date('Y-m-d H:i:s') }}" placeholder="Order datum...">
+                                            <input type="date" class="form-control input-sm input-required" required name="order_date" id="order_date" value="{{ date('Y-m-d H:i:s') }}" placeholder="Order datum...">
                                         @endif                      
                                     </div>
                                 </div> <!-- row -->
@@ -74,7 +74,7 @@
                                         <div class="col-xs-4">                                                                 
                                             <label class="control-label">Klant</label>
                                             @if ($isNew == 1)
-                                                <select class="form-control selectpicker show-tick show-menu-arrow customerSelector" data-live-search="true" data-style="btn-default btn-sm btn-required" title="klant..." name="id_customer" id="id_customer" required >
+                                                <select class="form-control selectpicker show-tick show-menu-arrow customerSelector" data-live-search="true" data-style="btn-default btn-sm btn-required" data-size="6" title="klant..." name="id_customer" id="id_customer" required >
                                                     @foreach ($customers as $customer)
                                                         @if($customer->id_customer == $invoice->id_customer)
                                                             <option 
@@ -103,7 +103,7 @@
                                     <div class="row">
                                         <div class="col-xs-4">                                                                 
                                             <label class="control-label">Type Factuur</label>
-                                            <select class="form-control selectpicker show-tick show-menu-arrow invoiceSelector" data-style="btn-default btn-sm btn-required" title="Type..." required >
+                                            <select class="form-control selectpicker show-tick show-menu-arrow invoiceSelector" name="invoice_type" data-style="btn-default btn-sm btn-required" title="Type..." required >
                                             @if ($invoice->invoice_type == 1)
                                                 <option value="1" selected="selected">Manuele Input</option>
                                                 <option value="3">Bol-BE</option>
@@ -147,9 +147,9 @@
                 
                                 </div> <!-- class xs 6 -->
                                 <div class="col-xs-2 pull-right">
-                                    <label class="control-label">CZ Ordernr</label>
+                                    <label class="control-label" id="label_id_cust_order">CZ Ordernr</label>
                                     <input type="number" class="form-control input-sm" name="id_cust_order" id="id_cust_order" value="{{ $invoice->id_cust_order }}">
-                                    <label class="control-label">Bol Ordernr</label>
+                                    <label class="control-label" id="label_ordernr_bol">Bol Ordernr</label>
                                     <input type="number" class="form-control input-sm" name="ordernr_bol" id="ordernr_bol" value="{{ $invoice->ordernr_bol }}"><br>
                                 </div> <!-- class xs 6 -->
                             </div>
@@ -164,7 +164,8 @@
                                                         <th><button type="button" id="addRow"  name="addRow" class="table-add pull-left">+</button></th>
                                                         <th>Ref. / Omschrijving</th>
                                                         <th>Aantal</th>
-                                                        <th>Eenh.Prijs</th>
+                                                        <th>Eenh.Pr. incl.BTW</th>
+                                                        <th>BTW %</th>
                                                         <th>Tot. Ex. BTW</th>
                                                         <th>Tot. Incl BTW</th>
                                                         <th>Acties</th>
@@ -174,25 +175,27 @@
                                                         <?php $rowCount = 1; ?>
                                                         @foreach($invoiceDetails as $invoiceDetail)
                                                             <tr class="original" id="row{{$rowCount}}"> 
-                                                                <td class="rowNumber">{{ $rowCount}}</td>
-                                                                <td class="col-xs-5">
+                                                                <td class="rowNumber" name="row[]" value="{{$rowCount}}">{{ $rowCount}}</td>
+                                                                <td class="col-xs-3">
                                                                     <div class="form-group">
-                                                                        <select class="selectpicker productSelector show-tick show-menu-arrow form-control" data-live-search="true" data-style="btn-default btn-sm" name="id_product[]" id="{{$rowCount}}">
+                                                                        <select class="selectpicker productSelector show-tick show-menu-arrow form-control" data-live-search="true" data-style="btn-default btn-sm" data-size="8" name="id_product[]" id="{{$rowCount}}">
                                                                             @foreach ($products as $product)
                                                                                 @if($product->id_product == $invoiceDetail->id_product)
-                                                                                    <option data-cz-price="{{$product->vkp_cz_ex_vat}}"
-                                                                                            data-bolbe-price="{{$product->vkp_bol_be_ex_vat}}"
-                                                                                            data-bolnl-price="{{$product->vkp_bol_nl_ex_vat}}"
+                                                                                    <option data-cz-price="{{$product->vkp_cz_in_vat}}"
+                                                                                            data-bolbe-price="{{$product->vkp_bol_be_in_vat}}"
+                                                                                            data-bolnl-price="{{$product->vkp_bol_nl_in_vat}}"
                                                                                             data-vat="{{$product->vat_procent}}"
                                                                                             data-bol-fix-cost="{{$product->bol_group_cost_fix}}"
-                                                                                            data-bol-procent-cost="{{$product->bol_group_cost_procent}}" selected="selected">{{ $product->id_product }} / {{$product->name }}</option>
+                                                                                            data-bol-procent-cost="{{$product->bol_group_cost_procent}}"
+                                                                                            value="{{ $product->id_product }}" selected="selected">{{ $product->id_product }} / {{$product->name }}</option>
                                                                                 @else
-                                                                                    <option data-cz-price="{{$product->vkp_cz_ex_vat}}" 
-                                                                                            data-bolbe-price="{{$product->vkp_bol_be_ex_vat}}"
-                                                                                            data-bolnl-price="{{$product->vkp_bol_nl_ex_vat}}"
+                                                                                    <option data-cz-price="{{$product->vkp_cz_in_vat}}" 
+                                                                                            data-bolbe-price="{{$product->vkp_bol_be_in_vat}}"
+                                                                                            data-bolnl-price="{{$product->vkp_bol_nl_in_vat}}"
                                                                                             data-vat="{{$product->vat_procent}}"
                                                                                             data-bol-fix-cost="{{$product->bol_group_cost_fix}}"
-                                                                                            data-bol-procent-cost="{{$product->bol_group_cost_procent}}">{{ $product->id_product }} / {{ $product->name }}</option>
+                                                                                            data-bol-procent-cost="{{$product->bol_group_cost_procent}}"
+                                                                                            value="{{ $product->id_product }}">{{ $product->id_product }} / {{ $product->name }}</option>
                                                                                 @endif
                                                                             @endforeach
                                                                         </select>
@@ -200,16 +203,19 @@
                                                                 </td>
 
                                                                 <td class="input-sm col-xs-1"><input type="number" class="form-control input-sm quantity" name="quantity[]" id="quantity{{$rowCount}}" value="{{ $invoiceDetail->quantity }}"></td>
-                                                                <td class="input-sm col-xs-1"><input type="number" step="0.01" class="form-control input-sm unitPrice" name="unitPrice[]" id="unitPrice{{$rowCount}}" value="{{ round($invoiceDetail->product_unit_price_ex_vat,2) }}"></td>
+                                                                <td class="input-sm col-xs-2"><input type="number" step="0.01" class="form-control input-sm unitPrice" name="unitPrice[]" id="unitPrice{{$rowCount}}" value="{{ round($invoiceDetail->product_unit_price_incl_vat,2) }}"></td>
+                                                                <td class="input-sm col-xs-1"><input type="number" class="form-control input-sm rowVatProcent" name="rowVatProcent[]" id="rowVatProcent{{$rowCount}}" value="{{ round($invoiceDetail->vat_procent,2) }}" readonly tabindex="-1"></td>
                                                                 <td class="input-sm col-xs-2"><input type="number" class="form-control input-sm rowPriceEx" name="rowPriceEx[]" id="rowPriceEx{{$rowCount}}" value="{{ round($invoiceDetail->product_total_price_ex_vat,2) }}" readonly tabindex="-1"></td>
                                                                 <td class="input-sm col-xs-2"><input type="number" class="form-control input-sm rowPriceIncl" name="rowPriceIncl[]" id="rowPriceIncl{{$rowCount}}" value="{{ round($invoiceDetail->product_total_price_incl_vat,2) }}" readonly tabindex="-1"></td>
 
-                                                                <input type="hidden" class="ikPrice" name="ikPrice[]" id="ikPrice{{$rowCount}}"></td>
-                                                                <input type="hidden" class="rowIkPrice" name="rowIkPrice[]" id="rowIkPrice{{$rowCount}}"></td>
-                                                                <input type="hidden" class="bolFixCost" name="bolFixCost[]" id="bolFixCost{{$rowCount}}"></td>
-                                                                <input type="hidden" class="bolProcentCost" name="bolProcentCost[]" id="bolProcentCost{{$rowCount}}"></td>
-                                                                <input type="hidden" class="rowBolCost" name="rowBolcost[]" id="rowBolCost{{$rowCount}}"></td>
 
+                                                                <input type="hidden" class="ikPrice" name="ikPrice[]" id="ikPrice{{$rowCount}}" value="{{ $invoiceDetail->product_ikp_price_cz_ex_vat }}"></td>
+                                                                <input type="hidden" class="rowIkPrice" name="rowIkPrice[]" id="rowIkPrice{{$rowCount}}" value="{{ $invoiceDetail->product_total_ikp_cz_ex_vat }}"></td>
+                                                                <input type="hidden" class="bolFixCost" name="bolFixCost[]" id="bolFixCost{{$rowCount}}" value="{{$invoiceDetail->bol_fix_cost}}"></td>
+                                                                <input type="hidden" class="bolProcentCost" name="bolProcentCost[]" id="bolProcentCost{{$rowCount}}" value="{{$invoiceDetail->bol_procent_cost}}"></td>
+                                                                <input type="hidden" class="rowBolCost" name="rowBolCost[]" id="rowBolCost{{$rowCount}}"  
+                                                                    value="{{ round((($product->bol_group_cost_procent / 100) * $invoiceDetail->product_total_price_ex_vat) + ($product->bol_group_cost_fix / (( $param->stand_vat_procent / 100)+1)),2) }}" ></td>
+                                                                 <input type="hidden" class="invoiceRowId" name="invoiceRowId[]" id="invoiceRowId{{$rowCount}}" value="{{ $invoiceDetail->id_cz_cust_invoice_detail }}"></td>
                                                                 <td class="input-sm col-xs-1">
                                                                     <button type="button" class="delRow glyphicon glyphicon-remove pull-right"></button>
                                                                 </td>
@@ -249,7 +255,7 @@
                                     <div class="col-xs-4 pull-right">
                                         <div class="col-xs-7 pull-right">
                                         <label class="control-label">Tot. Producten ex. BTW</label>
-                                        <input type="number" class="form-control input-sm" name="total_products_exl_btw " id="total_products_exl_btw" value="{{ round($invoice->total_products_exl_btw,2) }}" readonly tabindex="-1">
+                                        <input type="number" class="form-control input-sm" name="total_products_exl_btw" id="total_products_exl_btw" value="{{ round($invoice->total_products_exl_btw,2) }}" readonly tabindex="-1">
                                         </div>
                                     </div>
                                 </div>
@@ -339,9 +345,52 @@
                                     </div>
 
                                     <div class="col-xs-4 pull-right">
+                                        <div class="col-xs-5">                                                                 
+                                            <label class="control-label">Betaalwijze</label>
+                                            <select class="form-control selectpicker show-tick show-menu-arrow paymentSelector" name="payment_method" data-style="btn-default btn-sm btn-required" title="Betaalwijze...">
+                                            @if ($invoice->payment_method == "HiPay")
+                                                <option value="HiPay" selected="selected">HiPay</option>
+                                                <option value="Paypal">Paypal</option>
+                                                <option value="Via bol.com">Via bol.com</option>
+                                                <option value="Kas">Kas</option>
+                                                <option value="Niet Voldaan">Niet Voldaan</option>
+                                            @elseif($invoice->payment_methd == "Paypal")
+                                                <option value="HiPay">HiPay</option>
+                                                <option value="Paypal" selected="Paypal">Paypal </option>
+                                                <option value="Via bol.com">Via bol.com</option>
+                                                <option value="Kas">Kas</option>
+                                                <option value="Niet Voldaan">Niet Voldaan</option>
+                                            @elseif($invoice->payment_method == "Via bol.com")
+                                                <option value="HiPay">HiPay</option>
+                                                <option value="Paypal">Paypal</option>
+                                                <option value="Via bol.com" selected="Via bol.com">Via bol.com</option>
+                                                <option value="Kas">Kas</option>
+                                                <option value="Niet Voldaan">Niet Voldaan</option>
+                                            @elseif($invoice->payment_method == "Kas")
+                                                <option value="HiPay">HiPay</option>
+                                                <option value="Paypal">Paypal</option>
+                                                <option value="Via bol.com">Via bol.com</option>
+                                                <option value="Kas" selected="Kas">Kas</option>
+                                                <option value="Niet Voldaan">Niet Voldaan</option>
+                                            @elseif($invoice->payment_method == "Niet Voldaan")
+                                                <option value="HiPay">HiPay</option>
+                                                <option value="Paypal">Paypal</option>
+                                                <option value="Via bol.com">Via bol.com</option>
+                                                <option value="Kas">Kas</option>
+                                                <option value="Niet Voldaan" selected="Niet Voldaan">Niet Voldaan</option>
+                                            @else
+                                                <option value="HiPay">HiPay</option>
+                                                <option value="Paypal">Paypal</option>
+                                                <option value="Via bol.com">Via bol.com</option>
+                                                <option value="Kas">Kas</option>
+                                                <option value="Niet Voldaan">Niet Voldaan</option>
+                                            @endif
+                                            </select>
+                                        </div>
+
                                         <div class="col-xs-7 pull-right">
-                                        <label class="control-label">Totaal Betaald</label>
-                                        <input type="number" step="0.01" class="form-control input-sm" name="total_paid" id="total_paid" value="{{ round($invoice->total_paid,2) }}">
+                                            <label class="control-label">Totaal Betaald</label>
+                                            <input type="number" step="0.01" class="form-control input-sm" name="total_paid" id="total_paid" value="{{ round($invoice->total_paid,2) }}">
                                         </div>
                                     </div> <!-- col-xs-4 -->
                                 </div> <!-- Row -->
@@ -404,8 +453,27 @@ $(document).ready(function() {
     var invoiceType = 0
     var standVatProcent = Number($('#stand_vat_procent').val());
     $('#total_shipping_btw_procent').val(standVatProcent);
-    $("#total_costs_bol_exl_btw").hide();
-    $("#label_bol_costs").hide();
+
+    var bolCost = Number($('#total_costs_bol_exl_btw').val());
+    if(!bolCost)
+    {
+        $("#total_costs_bol_exl_btw").hide();
+        $("#label_bol_costs").hide();
+    }
+
+    var idCustOrder = Number($('#id_cust_order').val());
+    if(!idCustOrder)
+    {
+        $("#id_cust_order").hide();
+        $("#label_id_cust_order").hide();
+    }
+
+    var orderNrBol = Number($('#ordernr_bol').val());
+    if(!orderNrBol)
+    {
+        $("#ordernr_bol").hide();
+        $("#label_ordernr_bol").hide();
+    }
 
 
     var shippingCostCzBeExVat = Number($('#shipping_cost_cz_be_ex_btw').val());
@@ -427,20 +495,21 @@ $(document).ready(function() {
         rowNumber = Number(($('.rowNumber').length)+1);
         var row = 
             '<tr id="row'+ rowNumber +'">' + 
-                '<td class="rowNumber">'+ rowNumber + '</td>'+
-                '<td class="col-xs-5">'+
+                '<td class="rowNumber"  name="row[]" value="' + rowNumber + '">'+ rowNumber + '</td>'+
+                '<td class="col-xs-3">'+
                     '<div class="form-group">' +
-                        '<select class="selectpicker productSelector show-tick show-menu-arrow form-control" data-live-search="true" data-style="btn-default btn-sm" title="product..." name="id_product[]" id="'+ rowNumber +'"">' +
+                        '<select class="selectpicker productSelector show-tick show-menu-arrow form-control" data-live-search="true" data-style="btn-default btn-sm" data-size="8" title="product..." name="id_product[]" id="'+ rowNumber +'"">' +
                             '@foreach ($products as $product)' +
-                                '<option data-cz-price="{{$product->vkp_cz_ex_vat}}" data-bolbe-price="{{$product->vkp_bol_be_ex_vat}}" data-bolnl-price="{{$product->vkp_bol_nl_ex_vat}}" data-ik-price="{{$product->ikp_ex_cz}}"  data-bol-fix-cost="{{$product->bol_group_cost_fix}}" data-bol-procent-cost="{{$product->bol_group_cost_procent}}" data-vat="{{$product->vat_procent}}">{{ $product->id_product }} / {{$product->name }}</option>' +
+                                '<option data-cz-price="{{$product->vkp_cz_in_vat}}" data-bolbe-price="{{$product->vkp_bol_be_in_vat}}" data-bolnl-price="{{$product->vkp_bol_nl_in_vat}}" data-ik-price="{{$product->ikp_ex_cz}}"  data-bol-fix-cost="{{$product->bol_group_cost_fix}}" data-bol-procent-cost="{{$product->bol_group_cost_procent}}" data-vat="{{$product->vat_procent}}" value="{{ $product->id_product }}">{{ $product->id_product }} / {{$product->name }}</option>' +
                             '@endforeach'+
                         '</select>'+
                     '</div>'+
                 '</td>'+
                 '<td class="input-sm col-xs-1"><input type="number" class="form-control input-sm quantity" name="quantity[]" id="quantity' + rowNumber + '"></td>' +
-                '<td class="input-sm col-xs-1"><input type="number" step="0.01" class="form-control input-sm unitPrice" name="unitPrice[]" id="unitPrice' + rowNumber +'"></td>' +
+                '<td class="input-sm col-xs-2"><input type="number" step="0.01" class="form-control input-sm unitPrice" name="unitPrice[]" id="unitPrice' + rowNumber +'"></td>' +
+                '<td class="input-sm col-xs-1"><input type="number" class="form-control input-sm rowVatProcent" name="rowVatProcent[]" id="rowVatProcent' + rowNumber +'" readonly tabindex="-1"></td>' +
                 '<td class="input-sm col-xs-2"><input type="number" class="form-control input-sm rowPriceEx" name="rowPriceEx[]" id="rowPriceEx' + rowNumber + '" readonly tabindex="-1"></td>' + 
-                '<td class="input-sm col-xs-2"><input type="number" class="form-control input-sm rowPriceIncl" name="rpwPriceIncl[]" id="rowPriceIncl' + rowNumber + '" readonly tabindex="-1"></td>' +
+                '<td class="input-sm col-xs-2"><input type="number" class="form-control input-sm rowPriceIncl" name="rowPriceIncl[]" id="rowPriceIncl' + rowNumber + '" readonly tabindex="-1"></td>' +
 
                 '<input type="hidden" class="ikPrice" name="ikPrice[]" id="ikPrice' + rowNumber + '"></td>' + 
                 '<input type="hidden" class="rowIkPrice" name="rowIkPrice[]" id="rowIkPrice' + rowNumber + '"></td>' +
@@ -490,10 +559,12 @@ $(document).ready(function() {
         {
             var vkPrice = r22($('#' + selectId).find(":selected").attr('data-cz-price')); 
         }  
-        var ikPrice = r22($('#' + selectId).find(":selected").attr('data-ik-price'));       
+        var ikPrice = r22($('#' + selectId).find(":selected").attr('data-ik-price')); 
+        var vatProcent = r22($('#' + selectId).find(":selected").attr('data-vat'));           
         var bolFixCost = r22($('#' + selectId).find(":selected").attr('data-bol-fix-cost')); 
         var bolProcentCost = r22($('#' + selectId).find(":selected").attr('data-bol-procent-cost'));     
         $("#unitPrice" + selectId).val(vkPrice);
+        $("#rowVatProcent" + selectId).val(vatProcent);
         $("#ikPrice" + selectId).val(ikPrice);
         $("#bolFixCost" + selectId).val(bolFixCost);
         $("#bolProcentCost" + selectId).val(bolProcentCost);
@@ -535,6 +606,11 @@ $(document).ready(function() {
             $('#total_shipping_incl_btw').val(0);
             $("#total_costs_bol_exl_btw").show();
             $("#label_bol_costs").show();
+            $("#id_cust_order").hide();
+            $("#label_id_cust_order").hide();
+            $("#ordernr_bol").show();
+            $("#label_ordernr_bol").show();
+            $('#id_cust_order').val(0);
         }
         else if(invoiceType == 5)
         {    // BOL-NL
@@ -543,6 +619,12 @@ $(document).ready(function() {
             $('#total_shipping_incl_btw').val(0);
             $("#total_costs_bol_exl_btw").show();
             $("#label_bol_costs").show();
+            $("#id_cust_order").hide();
+            $("#label_id_cust_order").hide();
+            $("#ordernr_bol").show();
+            $("#label_ordernr_bol").show();
+            $('#id_cust_order').val(0);
+
         }
         else if(invoiceType == 4)
         {    // CZ - BE
@@ -555,10 +637,14 @@ $(document).ready(function() {
             }
             $("#total_costs_bol_exl_btw").hide();
             $("#label_bol_costs").hide();
-
+            $("#id_cust_order").show();
+            $("#label_id_cust_order").show();
+            $("#ordernr_bol").hide();
+            $("#label_ordernr_bol").hide();
+            $('#ordernr_bol').val(0);
         }
         else if(invoiceType == 6)
-        {    // CZ - BE
+        {    // CZ - NL
             $('#total_shipping_cost_exl_btw').val(shippingCostCzNlExVat);
             if(totalProductsInVat < minOrderAmountFreeShipping){
                 var shippingAmountCzInVat = r22((((shippingAmountCzExVat)/100)*standVatProcent) +shippingAmountCzExVat)  
@@ -567,7 +653,11 @@ $(document).ready(function() {
             }
             $("#total_costs_bol_exl_btw").hide();
             $("#label_bol_costs").hide();
-
+            $("#id_cust_order").show();
+            $("#label_id_cust_order").show();
+            $("#ordernr_bol").hide();
+            $("#label_ordernr_bol").hide();
+            $('#ordernr_bol').val(0);
         }
        
         if(invoiceType == 0){
@@ -579,16 +669,13 @@ $(document).ready(function() {
         var quantity = tr.find('.quantity').val();
         var unitPrice = r22((tr.find('.unitPrice').val()));
         var ikPrice = r22((tr.find('.ikPrice').val()));
-
-
-        var rowPriceEx = r22(quantity * unitPrice);
+        var vatProcent = r22((tr.find('.rowVatProcent').val()));
+        var rowPriceEx = r22(quantity * (unitPrice / ((vatProcent/100)+1)));
         var rowIkPrice = r22(quantity * ikPrice);
-
-        var rowPriceIncl = r22((((quantity * unitPrice) / 100) * standVatProcent) + (quantity * unitPrice));
+        var rowPriceIncl = r22(quantity * unitPrice);
         tr.find('.rowPriceEx').val(rowPriceEx);
         tr.find('.rowPriceIncl').val(rowPriceIncl);
         tr.find('.rowIkPrice').val(rowIkPrice);
-
 
         var totalProductsExVat = getTotalProductsExVat();
         $('#total_products_exl_btw').val(totalProductsExVat);
@@ -628,8 +715,6 @@ $(document).ready(function() {
 
         var shippingCostExVat = r22(Number($('#total_shipping_cost_exl_btw').val()));
         var wrappingCostExVat = r22(Number($('#total_wrapping_cost_exl_btw').val()));
-
-
 
         var totalInvoiceExVat = r22(totalProductsExVat + totalShippingExVat + totalWrappingExVat);
         $('#total_invoice_exl_btw').val(totalInvoiceExVat);

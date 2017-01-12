@@ -38,7 +38,16 @@ tr th
             <br>
             Datum Order : {{$invoice->order_date}}<br>
             Datum Factuur : {{$invoice->invoice_date}}<br>
-            Betaalwijze : {{$invoice->payment_method}}
+            Betaalwijze : {{$invoice->payment_method}}<br>
+            @if($invoice->invoice_type == 5)
+              Factuur Type : BOL-NL
+            @elseif($invoice->invoice_type == 4)
+              Factuur Type : Cool-Zawadi
+            @elseif($invoice->invoice_type == 3)
+              Factuur Type : BOL-BE 
+            @else 
+              Factuur type : ---
+            @endif
         </td>
     </tr>
 </table>

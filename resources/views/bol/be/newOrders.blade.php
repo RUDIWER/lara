@@ -59,7 +59,8 @@
                                                     <th align="center">Omschrijving</th>
                                                     <th type="number">Eenh. Prijs</th>
                                                     <th type="number">totaal</th>
-                                                    <th type="number"> Bol Kost</th>
+                                                    <th type="number"> Bol Kost Eff.</th>
+                                                    <th type="number"> Bol Kost Calc.</th>
                                                 </tr>
                                                 @foreach( $newOrder->bolBeOrderDetails as $orderDetail)
                                                     <tr>
@@ -68,6 +69,7 @@
                                                         <td type="number">{{ round($orderDetail->unit_price_incl_vat,2) }}</td>
                                                         <td type="number">{{ round($orderDetail->row_price_incl_vat,2) }}</td>
                                                         <td type="number">{{ round($orderDetail->transaction_fee,2) }}</td>
+                                                        <td type="number">{{ round(($orderDetail->quantity * $orderDetail->calc_bol_be_cost),2) }}</td>
                                                     </tr> 
                                                 @endforeach
                                             </table>
@@ -159,12 +161,12 @@ var newBolBeOrderApp = new Vue({
                 error: function (xhr, ajaxOptions, thrownError, data) 
                 {
                     console.log('data : ' + data);
-                // alert(ajaxOptions);
-                //  alert(xhr.status);
-                //    alert(thrownError);
+                 //alert(ajaxOptions);
+                 // alert(xhr.status);
+                 //   alert(thrownError);
                 }
             })
-            .done(function(data){
+            .done(function(data){     
                location.reload();
                $(location ).ready(function() {
                    toastr["success"]("Status werd succesvol aangepast !");

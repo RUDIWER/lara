@@ -136,7 +136,7 @@ class BolNlCustOrderController extends Controller
         {
           // 1) Create invoice
              $invoice = new CzCustInvoice;
-             $invoice->ordernr_bol = ('NL/' . $order->bol_nl_order_id);
+             $invoice->ordernr_bol = ($order->bol_nl_order_id);
              $invoice->id_customer = $order->id_customer;
              $invoice->customer_name = $order->customer->lastname;
              $invoice->customer_first_name = $order->customer->firstname;
@@ -144,7 +144,6 @@ class BolNlCustOrderController extends Controller
              $invoice->customer_city = $order->invoice_city;
              $invoice->customer_postal_code = $order->invoice_postcode;
              $invoice->customer_vat_number = $order->invoice_vat_number;
-
              if($order->id_invoice_country == 3)
              {
                 $invoice->customer_country = 'BE';
@@ -160,10 +159,10 @@ class BolNlCustOrderController extends Controller
              $invoice->invoice_date = date("Y/m/d");
              $invoice->order_date = $order->date_order;   
              $invoice->order_reference = $order->id_bol_nl_orders;
-             $invoice->payment_method = 'Via Bol.com NL';
+             $invoice->payment_method = 'Via bol.com';
              $invoice->total_shipping_btw_procent = $param->stand_vat_procent;
              $invoice->total_shipping_exl_btw = 0;
-             $invoice->total_shipping_incl_btw = 0;       
+             $invoice->total_shipping_incl_btw = 0;     
              foreach ($orderDetails as $orderDetail) 
              {
              //  $czProduct = CzProduct::where('id_product',$orderDetail->id_product)->first();
@@ -188,9 +187,9 @@ class BolNlCustOrderController extends Controller
              $invoice->total_invoice_incl_btw = $invoice->total_products_incl_btw;
              $invoice->total_wrapping_exl_btw = 0;
              $invoice->total_wrapping_incl_btw = 0;
-             $invoice->invoice_type = '3';
+             $invoice->invoice_type = '5';
              $invoice->total_wrapping_cost_ex_btw = 0;
-             $invoice->netto_margin_ex_btw = $invoice->total_invoice_exl_btw - $invoice->total_ikp_cz_exl_btw - $invoice->total_shipping_cost_exl_btw;
+             $invoice->netto_margin_ex_btw = $invoice->total_invoice_exl_btw - $invoice->total_ikp_cz_exl_btw - $invoice->total_shipping_cost_exl_btw - $invoice->total_costs_bol_exl_btw;
              // Get new Invoice number 
              $lastInvoiceNr = $invoice::orderBy('id_cust_invoice', 'desc')->first()->id_cust_invoice;
              $invoice->id_cust_invoice = $lastInvoiceNr + 1;
@@ -200,14 +199,16 @@ class BolNlCustOrderController extends Controller
                 $invoice->save();    // Save invoice (header)
                 $invoice=CzCustInvoice::find($lastInvoiceNr + 1);
             // 2) Create invoice rows & change to invoice field in products
-                $invoiceRow = new CzCustInvoiceDetail;
                 foreach ($orderDetails as $orderDetail)     // Loop over order rows and make invoice rows
                 {
+                    $invoiceRow = new CzCustInvoiceDetail;
                     $productInRow = CzProduct::where('id_product',$orderDetail->id_product)->first();
                     $invoiceRow->id_cz_cust_invoice = $invoice->id_cz_cust_invoice;
                     $invoiceRow->id_cust_invoice = $invoice->id_cust_invoice;
                     $invoiceRow->id_product = $orderDetail->id_product;
                     $invoiceRow->product_reference = $productInRow->reference;
+                    $invoiceRow->bol_procent_cost = $productInRow->bol_group_cost_fix;
+                    $invoiceRow->bol_fix_cost = $productInRow->bol_group_cost_procent;
                     $invoiceRow->product_suppl_reference = $productInRow->product_supplier_reference;
                     $invoiceRow->product_descr = $orderDetail->product_name;
                     $invoiceRow->quantity = $orderDetail->quantity;
@@ -216,22 +217,25 @@ class BolNlCustOrderController extends Controller
                     $invoiceRow->product_total_ikp_cz_ex_vat = ($orderDetail->unit_ikp_cz_ex_vat * $orderDetail->quantity);
                     $invoiceRow->product_total_price_ex_vat = ( $invoiceRow->product_unit_price_ex_vat * $orderDetail->quantity);
                     $invoiceRow->vat_procent = $orderDetail->vat_procent;
+                    $invoiceRow->row_bol_cost_amount = round((($productInRow->bol_group_cost_procent / 100) * $invoiceRow->product_total_price_ex_vat) + ($productInRow->bol_group_cost_fix / (( $invoiceRow->vat_procent / 100)+1)),2);
                     $invoiceRow->product_total_price_incl_vat = ($orderDetail->unit_price_incl_vat * $orderDetail->quantity);
                     $invoiceRow->ean_product = $orderDetail->ean_code;
                     $invoiceRow->id_supplier = $productInRow->id_supplier;
                     $invoiceRow->product_unit_price_incl_vat = $orderDetail->unit_price_incl_vat;
+
                     $invoiceRow->save();
             // Change to invoice field  in Products 
                     $productInRow->quantity_to_invoice = $productInRow->quantity_to_invoice - $orderDetail->quantity;
                     $productInRow->save();
-                    DB::commit();
                     $notInvoiced = 0;
-                } //end foreach   
+                } //end foreach  
+                DB::commit(); 
              } catch (\Exception $e) 
              {      // something went wrong
                  $notInvoiced = 1;
                  DB::rollback();
                  throw $e;
+             //    return($e);
              } 
              // If invoice is created ...
              if(!$notInvoiced) 
